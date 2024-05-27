@@ -83,3 +83,10 @@ MY BTP CODE - changes to be added
 3. Adding the inverter path to the LO inputs - we have to edit the schematic, take in the required parameters
 4. adding tsmc components to resistors and capacitors - done✅
 5. Analysis code - temperature, sensitivity, process variations, frequency, feedthrough - done✅
+
+ Current mode passive mixer: 
+ We have started a new branch to make changes to the code for the current mode passive mixer. We will be updating
+    1. netlists - s11, gain, NF and iip3
+    2. gradient_descent.py functions
+    3. call_optimization_functions.py
+    4. common_functions.py and more
