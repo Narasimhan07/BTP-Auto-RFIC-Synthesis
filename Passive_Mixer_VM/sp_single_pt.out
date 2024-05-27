@@ -1,0 +1,15 @@
+; S-parameter data file sp_single_pt.out.
+; Wed May  1 23:26:45 2024
+; Number of ports is 1
+; FundFreq: 5.00000000e+08 
+; Small Signal Analysis: psp 
+; SweepType: abs 
+; portharmsvec= [ 1 ] 
+
+reference resistance 
+		 port1 = 50.000000 
+
+format freq:  s1:1(db,rad) 	 
+
+5.10000000e+08:        -9.58717,       -1.92478     
+

@@ -1,0 +1,8 @@
+openResults( "./psf" )
+results()
+v_out_mag = mag(harmonic(v("VO_IP" ?result "pac") -1)-harmonic(v("VO_IN" ?result "pac") -1) )
+gain_db = db20(v_out_mag)
+output_file = outfile( "results.txt" "w" )
+fprintf(output_file "%f" gain_db)
+close(output_file)
+exit

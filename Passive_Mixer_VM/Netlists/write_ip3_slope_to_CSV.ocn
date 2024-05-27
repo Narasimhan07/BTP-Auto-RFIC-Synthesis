@@ -1,0 +1,4 @@
+openResults( "./psf" )
+slope_ip3_curve = deriv(dbm(pvr("hb" "net022" "net021" 50 '(-1 2 -1))))
+awvSaveToCSV(slope_ip3_curve "slope_ip3_curve.csv")
+exit

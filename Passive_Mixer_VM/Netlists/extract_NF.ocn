@@ -1,0 +1,13 @@
+openResults( "./psf" )
+selectResult("pnoise")
+output_noise_power = pow(getData("out") 2)
+integ_NFactor_numerator = integ(output_noise_power 1K 10M)
+output_noise_power_divided_NFactor = pow(getData("out") 2)/pow(10 getData("NF")/10)
+integ_NFactor_denominator = integ(output_noise_power_divided_NFactor 1K 10M)
+integ_NF_db = 10*log10(integ_NFactor_numerator/integ_NFactor_denominator)
+output_file = outfile( "results.txt" "w" )
+fprintf(output_file "%f" integ_NF_db)
+close(output_file)
+NF_db = getData("NF")
+awvSaveToCSV(NF_db "freq_analysis_NF.csv")
+exit
