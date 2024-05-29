@@ -521,8 +521,8 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, alpha, 
         file_content.append(line + " \n")
         words = [
             "post iteration circuit parameters-->",
-            "RB:", str(post_iteration_circuit_parameters_iter['res_w']), 
-            "CL:", str(post_iteration_circuit_parameters_iter['cap_w']), 
+            "RL:", str(post_iteration_circuit_parameters_iter['RL']), 
+            "CL:", str(post_iteration_circuit_parameters_iter['CL']), 
             "sw_fin:", str(post_iteration_circuit_parameters_iter['sw_fin']),
             "w_per_fin:", str(post_iteration_circuit_parameters_iter['w_per_fin']),
             "switch_w:", str(post_iteration_circuit_parameters_iter['switch_w']),

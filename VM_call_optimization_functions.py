@@ -5,14 +5,14 @@
 import os
 import numpy as np
 import copy
-import matplotlib as plt 
-import VM_hand_calculation as vm_hc
-import full_optimization as fo 
-import gradient_descent as gd 
+import matplotlib.pyplot as plt 
+import Passive_Mixer_VM.VM_hand_calculation as vm_hc
+import Passive_Mixer_VM.full_optimization as fo 
+import Passive_Mixer_VM.gradient_descent as gd 
 # importing the analysis scripts for post optimization analysis
-import frequency_analysis as fa
-import temperature_analysis as ta
-import process_corners as pc
+import Passive_Mixer_VM.frequency_analysis as fa
+import Passive_Mixer_VM.temperature_analysis as ta
+import Passive_Mixer_VM.process_corners as pc
 """
 ===========================================================================================================================
 ---------------------------------------- FUNCTIONS TO INITIALIZE DICTIONARIES ---------------------------------------------

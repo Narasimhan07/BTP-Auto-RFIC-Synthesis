@@ -1,0 +1,106 @@
+// Generated for: spectre
+// Generated on: May 29 13:00:22 2024
+// Design library name: Narasimhan
+// Design cell name: Mixer_SB_CM_25D_TB
+// Design view name: schematic
+simulator lang=spectre
+global 0
+parameters CL=10p
+parameters RL=1K
+parameters w_per_fin=1u
+parameters gm=2
+parameters RN=100
+parameters flo=500M
+parameters Bandwidth=10M
+parameters freq_step=20K
+parameters G=100
+parameters sw_fin=30
+parameters sw_mul=2
+parameters temperature=27
+include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib
+
+// Library name: Narasimhan
+// Cell name: transimpedance_amplifier
+// View name: schematic
+subckt transimpedance_amplifier In Out
+parameters _par0=100 _par1=1K _par2=10p
+    E0 (Out 0 0 In) vcvs gain=_par0
+    R0 (In Out) resistor r=_par1
+    C0 (In Out) capacitor c=_par2
+ends transimpedance_amplifier
+// End of subcircuit definition.
+
+// Library name: Narasimhan
+// Cell name: current_mode_25D_mixer
+// View name: schematic
+subckt current_mode_25D_mixer IF_N IF_P LO\+ LO\- RF
+    M1 (RF LO\- net4 0) nmos_rf lr=60n wr=w_per_fin nr=sw_fin sa=sw_fin/(sw_fin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(sw_fin-1)/3.5 ) )-(0.5*6e-08) \
+         sb=sw_fin/(sw_fin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(sw_fin-1)/3.5 ) )-(0.5*6e-08) \
+         sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(w_per_fin*1.0))*(1/1.37e-06-1/(1.37e-06+(w_per_fin*1.0))))+(((1e-06*1e-06)/(w_per_fin*1.0))*(1/1.37e-06-1/(1.37e-06+(w_per_fin*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(w_per_fin*1.0))/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(w_per_fin*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(w_per_fin*1.0))/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(w_per_fin*1.0))/1e-06))))/1) \
+        m=sw_mul sigma=1
+    M0 (RF LO\+ net8 0) nmos_rf lr=60n wr=w_per_fin nr=sw_fin sa=sw_fin/(sw_fin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(sw_fin-1)/3.5 ) )-(0.5*6e-08) \
+         sb=sw_fin/(sw_fin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(sw_fin-1)/3.5 ) )-(0.5*6e-08) \
+         sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(w_per_fin*1.0))*(1/1.37e-06-1/(1.37e-06+(w_per_fin*1.0))))+(((1e-06*1e-06)/(w_per_fin*1.0))*(1/1.37e-06-1/(1.37e-06+(w_per_fin*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(w_per_fin*1.0))/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(w_per_fin*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(w_per_fin*1.0))/1e-06)))+((1/(w_per_fin*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(w_per_fin*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(w_per_fin*1.0))/1e-06))))/1) \
+        m=sw_mul sigma=1
+    I1 (net4 IF_N) transimpedance_amplifier _par0=G _par1=RL _par2=CL
+    I0 (net8 IF_P) transimpedance_amplifier _par0=G _par1=RL _par2=CL
+ends current_mode_25D_mixer
+// End of subcircuit definition.
+
+// Library name: Narasimhan
+// Cell name: Mixer_SB_CM_25D_TB
+// View name: schematic
+I1 (VO_QN VO_QP LO_90 LO_270 net07) current_mode_25D_mixer
+I0 (VO_IN VO_IP LO_0 LO_180 net07) current_mode_25D_mixer
+PORT0 (net019 0) port r=50 type=dc pacmag=1
+PORT6 (net026 net025) port r=50 type=dc
+PORT5 (net027 net028) port r=50 type=dc
+R10 (net07 0) resistor r=RN
+R5 (net019 0) resistor r=50
+R3 (net16 0) resistor r=50
+R2 (net10 0) resistor r=50
+R1 (net17 0) resistor r=50
+R0 (net11 0) resistor r=50
+PORT4 (net16 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_270"
+PORT2 (net17 0) port r=50 type=pulse delay=0.25*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_90"
+PORT3 (net10 0) port r=50 type=pulse delay=0.5*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_180"
+PORT1 (net11 0) port r=50 type=pulse delay=0 val0=0 val1=1.2 period=1/flo \
+        rise=0.001*(1/flo) fall=0.001*(1/flo) width=0.25*(1/flo) \
+        fundname="LO_0"
+E7 (net025 0 VO_QN 0) vcvs gain=1.0
+E4 (net028 0 VO_IN 0) vcvs gain=1.0
+E5 (net027 0 VO_IP 0) vcvs gain=1.0
+E6 (net026 0 VO_QP 0) vcvs gain=1.0
+E0 (LO_0 0 net11 0) vcvs gain=1.0
+E1 (LO_180 0 net10 0) vcvs gain=1.0
+E3 (LO_270 0 net16 0) vcvs gain=1.0
+E2 (LO_90 0 net17 0) vcvs gain=1.0
+G0 (net07 0 net019 0) vccs gm=gm
+simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
+    iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 \
+    maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \
+    sensfile="../psf/sens.output" checklimitdest=psf 
+// ANALYSIS STATEMENTS
+pss_test  pss  fund=flo  harms=50  errpreset=conservative
++    annotate=status
+pac_test  pac  sweeptype=absolute  start=flo+1K  stop=flo+Bandwidth  step=freq_step
++    maxsideband=10  annotate=status
+modelParameter info what=models where=rawfile
+element info what=inst where=rawfile
+outputParameter info what=output where=rawfile
+designParamVals info what=parameters where=rawfile
+primitives info what=primitives where=rawfile
+subckts info what=subckts where=rawfile
+saveOptions options save=allpub

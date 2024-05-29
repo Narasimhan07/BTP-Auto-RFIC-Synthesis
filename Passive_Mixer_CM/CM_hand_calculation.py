@@ -3,9 +3,11 @@
 # Switch resistance: Rsw
 # (Rsw is decided by the number of fingers and multiplier of the switching NMOS RF)
 # Resistance of transimpedance amplifier: RL
+# Capacitance of the transimpedance amplifier: CL
 # Port resistance: Rs
-# contents of input_circuit_specs(dictionary) - min_LO_freq, max_LO_freq, gain, S11, NF, iip3
-# contents of initial circuit parameters(dictionary) - res_w, switch NMOS{sw_fin, sw_mul}, switch_w, w_per_fin
+# contents of input_circuit_specs(dictionary) - min_LO_freq, max_LO_freq, RF_Bandwidth, transimpedance gain (ohms), S11, NF, iip3,
+#       other details that are fixed in the circuit: gain of the OPAMP in TIA, transconductance gain of the VCCS(LNA), ouput impedance of VCCS(LNA) 
+# contents of initial circuit parameters(dictionary) - res_w, cap_w, switch NMOS{sw_fin, sw_mul}, switch_w, w_per_fin, G, RN, gm
 
 import os
 import numpy as np
@@ -20,22 +22,38 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     Rs = 50
     # hand_calculated_circuit_parameters['Port impedance'] = Rs // not required in the initial circuit parameters
     # port resistance has been set to 50 ohms
-    # lower the value of RL in the transimpedance amplifier, lower is the input impedance at RF port
-    # setting RL arbitrarily as 100 ohms
-    RL = 100
+    # define RN as the output impedance of the LNA (output of the LNA is a current, like a VCCS and RN is like the norton resistance)
+    RN = output_conditions['RN']
+    hand_calculated_circuit_parameters['RN'] = RN
+    # defining the Transimpedance gain of the TIA as G and transconductance of the LNA as gm
+    G = output_conditions['G']
+    hand_calculated_circuit_parameters['G'] = G
+    gm = output_conditions['gm']
+    hand_calculated_circuit_parameters['gm'] = gm
+    # setting RL as 1000 ohms
+    RL = 1e3
+    hand_calculated_circuit_parameters['RL'] = RL
     # assigning the computed value of res_w from RL
-    hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL)
+    # hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 3)
+
+    # Performing hand calculation for CL
+    # setting CL to 10pF
+    CL = 10e-12
+    hand_calculated_circuit_parameters['CL'] = CL
+    # hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_um_rf_w_l(CL, 5)
     # now we approximate the value of sw_fin and sw_mul that gives us the required Rsw
-    file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/switch_resistance.scs"
+    file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/switch_resistance.scs"
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
     f = 0.5*(f_max + f_min)
     # multiplier for the nmos switch
     mul = 2
     # the number of fingers need to be swept from min_fingers to max_fingers
+    # the switch resistance is approximated at some particular temperature
     min_fingers = 10
     max_fingers = 60
-    parameter_to_edit = ['f','min_fingers','max_fingers','mul']
-    parameter_value = {'f':f,'min_fingers':min_fingers,'max_fingers':max_fingers,'mul':mul}
+    temperature = 27
+    parameter_to_edit = ['f','min_fingers','max_fingers','mul', 'temperature']
+    parameter_value = {'f':f,'min_fingers':min_fingers,'max_fingers':max_fingers,'mul':mul, 'temperature':temperature}
 
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -61,7 +79,7 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     with open(file_path, 'w') as file:
         file.writelines(scs_new_content)
     # The switch_resistance.scs is simulated and ac.out is read to find the suitable value for sw_fin and sw_mul
-    spectre_command = "spectre switch_resistance.scs =log log.txt"
+    spectre_command = "spectre " + file_path + " =log log.txt"
     os.system(spectre_command)
     # Now we read the ac.out file to find out the nfin that closest approximates the Rsw value
     with open("/home/ee20b087/cadence_project/BTP_EE20B087/ac.out",'r') as f:

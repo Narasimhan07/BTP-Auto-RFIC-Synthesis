@@ -1,0 +1,8 @@
+openResults( "./psf" ) 
+ip3_curve = dbm( pvr( "hb" "net027" "net028" 50 '(-1 2 -1) ) ) 
+first_order_curve = dbm( pvr( "hb" "net027" "net028" 50 '(-1 0 1) ) ) 
+iip3 = ipn( ip3_curve first_order_curve 3.0 1.0 -16.0 -30.0 ) 
+output_file = outfile( "results.txt" "w" ) 
+fprintf( output_file "%f" iip3 ) 
+close( output_file ) 
+exit 

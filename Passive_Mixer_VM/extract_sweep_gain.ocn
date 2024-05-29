@@ -1,0 +1,6 @@
+openResults( "./psf" )
+results()
+v_out_mag = mag(harmonic(v("VO_IP" ?result "pac") -1)-harmonic(v("VO_IN" ?result "pac") -1) )
+gain_db = db20(v_out_mag)
+awvSaveToCSV(gain_db "freq_analysis_gain.csv")
+exit
