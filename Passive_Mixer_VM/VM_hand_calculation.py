@@ -10,7 +10,7 @@
 
 import os
 import numpy as np
-import common_functions as cf
+import Passive_Mixer_VM.common_functions as cf
 
 def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # We set a value for the switch resistance; Corresponding number of fingers to approximate Rsw will be chosen later

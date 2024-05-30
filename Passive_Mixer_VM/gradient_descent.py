@@ -16,7 +16,7 @@
 import os
 import numpy as np
 import copy
-import common_functions as cf
+import Passive_Mixer_VM.common_functions as cf
 # ----------------------------------------------------------------------------------------------------------------------------------------
 # Contents of each class 'Circuit' object variable
 #   1. initial_circuit_parameters/hand_calculated_circuit_parameters/pre_iteration_circuit_parameters/post_iteration_circuit_parameters:
@@ -38,7 +38,7 @@ class Circuit:
         self.pre_iteration_circuit_parameters = {}
         self.post_iteration_circuit_parameters = {}
         # setting item named type in the class to the type of circuit
-        self.type = ciruit_type
+        self.type = circuit_type
         # defining a new dict that stored the circuit parameters after optimization
         self.post_optimization_circuit_parameters = {}
         # simulated output parameters stores the output simulation results afer each iteration

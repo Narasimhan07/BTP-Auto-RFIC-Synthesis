@@ -76,8 +76,8 @@ def get_simulation_conditions(CM_passive_mixer):
         'prf_max':-10,
         'prf_step':1,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_iip3_post_optimization.ocn"
         }
     }
  
@@ -86,9 +86,9 @@ def get_simulation_conditions(CM_passive_mixer):
     CM_passive_mixer['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
     # for gain key in the dictionary contains the ocean script file path
     CM_passive_mixer['simulation']['gain'] = {}
-    CM_passive_mixer['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_single_point_gain.ocn"
+    CM_passive_mixer['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_single_point_gain.ocn"
     CM_passive_mixer['simulation']['NF'] = {}
-    CM_passive_mixer['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_NF.ocn"
+    CM_passive_mixer['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_NF.ocn"
 
 # END of get_simulation_conditions()
 
@@ -166,17 +166,17 @@ def get_post_optimization_simulation_parameters(CM_passive_mixer):
         'prf_max':-10,
         'prf_step':1,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_iip3_post_optimization.ocn"
         }
     }
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['S11'] = {}
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
     # for gain key in the dictionary contains the ocean script file path
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain'] = {}
-    CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_sweep_gain.ocn"
+    CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_sweep_gain.ocn"
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF'] = {}
-    CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_NF.ocn"
+    CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_NF.ocn"
 
     # details for process corners analysis
     CM_passive_mixer['post_optimization']['process_corners']['section'] = ["ff_lib", "ss_lib"]   # list of sections needed to be analysed
@@ -202,17 +202,17 @@ def get_post_optimization_simulation_parameters(CM_passive_mixer):
         'prf_max':-10,
         'prf_step':1,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_iip3_post_optimization.ocn"
         }
     }
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['S11'] = {}
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
     # for gain key in the dictionary contains the ocean script file path
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['gain'] = {}
-    CM_passive_mixer['post_optimization']['process_corners']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_sweep_gain.ocn"
+    CM_passive_mixer['post_optimization']['process_corners']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_sweep_gain.ocn"
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['NF'] = {}
-    CM_passive_mixer['post_optimization']['process_corners']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_NF.ocn"
+    CM_passive_mixer['post_optimization']['process_corners']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_NF.ocn"
 
 # END of get_post_optimization_simulation_parameters()
 

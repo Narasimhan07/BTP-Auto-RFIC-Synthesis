@@ -3,8 +3,8 @@
 # class functions of class 'Circuit' to run the optimization run for the circuit
 import numpy as np
 import copy
-import common_functions as cf
-import gradient_descent as gd
+import Passive_Mixer_CM.common_functions as cf
+import Passive_Mixer_CM.gradient_descent as gd
 
 def full_opt(cir, optimization_parameters, output_conditions):
     # 'cir' is an object of class 'Circuit' which contains the initial_circuit_parameters (which are the hand calculated values),
@@ -43,6 +43,7 @@ def full_opt(cir, optimization_parameters, output_conditions):
         cir.run_circuit(output_conditions)
         # The above will run the circuit and set the simulated output parameters
         simulated_output_parameters_iter[i] = cir.get_simulated_output_parameters()
+        print(simulated_output_parameters_iter[i])
         # after obtaining simulated output parameters, loss function is calculated
         loss_iter[i] = cir.calc_loss(loss_weights, output_conditions)
         # printing loss for each iteration here
