@@ -3,8 +3,8 @@
 # class functions of class 'Circuit' to run the optimization run for the circuit
 import numpy as np
 import copy
-import common_functions as cf
-import gradient_descent as gd
+import Passive_Mixer_VM.common_functions as cf
+import Passive_Mixer_VM.gradient_descent as gd
 
 def full_opt(cir, optimization_parameters, output_conditions):
     # 'cir' is an object of class 'Circuit' which contains the initial_circuit_parameters (which are the hand calculated values),

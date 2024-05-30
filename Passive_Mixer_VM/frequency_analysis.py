@@ -6,7 +6,7 @@
 #   4. iip3 - for 2 tones & flo specified by the user
 #   5. 1-dB compression point 
 import numpy as np
-import common_functions as cf
+import Passive_Mixer_VM.common_functions as cf
 # defining the analysis function
 def freq_analysis(cir, post_optimization_freq):
     # there are 4 different analysis run in freq_analysis - S11, gain, NF and iip3

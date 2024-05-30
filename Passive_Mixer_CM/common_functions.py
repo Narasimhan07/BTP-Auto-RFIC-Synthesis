@@ -463,7 +463,7 @@ def extract_iip3(ocean_scripts):
     # Note: the input power where the slope is closest to 3dB/dB is selected as the extrapolation point
     slope_error = np.abs(np.array(y_values)-3)
     index = np.where(slope_error == np.min(slope_error))[0]
-    extrapolation_point = str(x_values[index])
+    extrapolation_point = str(np.array(x_values)[index][0])
 
     # Now, using the extrapolation point, we run the ocean script that return the iip3 spec to a text file - "results.txt"
     with open(extract_iip3_post_optimization_path, 'r') as file:

@@ -7,7 +7,7 @@
 #   4. iip3 - for 2 tones & flo specified by the user
 #   5. 1-dB compression point 
 import numpy as np
-import common_functions as cf
+import Passive_Mixer_CM.common_functions as cf
 # defining the analysis function
 def temperature_analysis(cir, post_optimization_temp):
     # the temperatures over which this analysis has to be carried out is inputed as a list in the post_optimization_temp dict
