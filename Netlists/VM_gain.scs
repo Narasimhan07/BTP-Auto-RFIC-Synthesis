@@ -90,6 +90,7 @@ sensfile="../psf/sens.output" checklimitdest=psf
 // ANALYSIS STATEMENTS 
 pss_test pss fund=flo harms=50 errpreset=conservative 
 + annotate=status 
+// PAC STATEMENTS
 pac_test pac sweeptype=absolute start=flo+Bandwidth maxsideband=10 
 + annotate=status 
 modelParameter info what=models where=rawfile 

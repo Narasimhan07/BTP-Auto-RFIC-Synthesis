@@ -6,22 +6,21 @@
 simulator lang=spectre 
 global 0 
 // PARAMETERS 
-parameters f=550000000.0 
-parameters nfin=25 
+parameters f=550000000.0  
 parameters mul=2 
+parameters nfin=1
 parameters Vsw=1.2 
-parameters min_fingers=10 
-parameters max_fingers=50 
+parameters min_mul=10 
+parameters max_mul=50 
 parameters temperature=27
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib 
  
 // Library name: Passive_mixer_ee20b087 
 // Cell name: switch_characterization_ON 
 // View name: schematic 
-M0 (Vi net7 0 0) nmos_rf lr=60n wr=1u nr=nfin sa=nfin/(nfin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(nfin-1)/3.5 ) )-(0.5*6e-08) \ 
-sb=nfin/(nfin / ((4.5e-07 + 6e-08/2) + (2.4e-07 + 6e-08)*(nfin-1)/3.5 ) )-(0.5*6e-08) \ 
-sd=240.0n sca=1.71391 scb=4.07904e-06 scc=5.54027e-12 m=mul \ 
-sigma=1 
+M0 (Vi net7 0 0) nmos_rf lr=60n wr=2u nr=nfin sa=767.456n sb=767.456n \
+sd=240.0n sca=1.1217 scb=1.16287e-06 scc=1.43387e-12 m=mul \
+sigma=1
 I1 (Vi 0) isource dc=0 type=dc mag=1 
 V0 (net7 0) vsource dc=Vsw type=dc 
 simulatorOptions options reltol=1e-3 vabstol=1e-6 iabstol=1e-12 temp=temperature \ 
@@ -29,7 +28,7 @@ tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 maxnotes=5 maxwarns=5 \
 digits=5 cols=80 pivrel=1e-3 sensfile="../psf/sens.output" \ 
 checklimitdest=psf 
 // ANALYSIS STATEMENTS 
-ac_test ac freq=f param=nfin start=min_fingers stop=max_fingers step=1 annotate=status 
+ac_test ac freq=f param=mul start=min_mul stop=max_mul step=1 annotate=status 
 modelParameter info what=models where=rawfile 
 element info what=inst where=rawfile 
 outputParameter info what=output where=rawfile 

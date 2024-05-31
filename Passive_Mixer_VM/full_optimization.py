@@ -43,6 +43,7 @@ def full_opt(cir, optimization_parameters, output_conditions):
         cir.run_circuit(output_conditions)
         # The above will run the circuit and set the simulated output parameters
         simulated_output_parameters_iter[i] = cir.get_simulated_output_parameters()
+        print(simulated_output_parameters_iter[i])
         # after obtaining simulated output parameters, loss function is calculated
         loss_iter[i] = cir.calc_loss(loss_weights, output_conditions)
         # printing loss for each iteration here

@@ -69,7 +69,7 @@ def S11_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simul
     single_point = [
         ["pss_test", "pss", "fund=flo", "harms=50", "errpreset=conservative"],
         ["+", "annotate=status"],
-        ["psp_test", "psp", "sweeptype=absolute", "start=flo+Bandwidth", "portharmsvec=[1]"],
+        ["psp_test", "psp", "sweeptype=absolute", "start=flo", "portharmsvec=[1]"],
         ["+", "ports=[PORT0]", "annotate=status", "file=\"sp_single_pt.out\""],
         ["+", "datatype=dbphase"]
     ]
@@ -81,7 +81,7 @@ def S11_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simul
     parameters_to_edit['temperature'] = simulation_parameters['temp']
     parameters_to_edit['section'] = simulation_parameters['section']
     parameters_to_edit['freq_step'] = simulation_parameters['freq_step']
-    file_path = simulation_parameters['netlists']['S11_netlist']
+    file_path = simulation_parameters['netlists']['pss_netlist']
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
         # print(scs_content)
@@ -110,7 +110,7 @@ def S11_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simul
                 words.append(set_section)
                 new_line = ' '.join(words)
                 scs_new_content.append(new_line + " \n")
-            elif(words[0]=="//" and words[1]=="ANALYSIS" and words[2]=="STATEMENTS"):
+            elif(words[0]=="//" and words[1]=="PSP" and words[2]=="STATEMENTS"):
                 flag = 1
                 scs_new_content.append(line + " \n")
             elif flag==1:
@@ -140,14 +140,10 @@ def gain_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simu
     # netlist_type can be "single_point" or "sweep"
     # gain is carried out at frf = flo+Bandwidth for single point and from start=flo-Bandwidth to stop=flo+Bandwidth for "sweep"
     single_point = [
-        ["pss_test", "pss", "fund=flo", "harms=50", "errpreset=conservative"],
-        ["+", "annotate=status"],
         ["pac_test", "pac", "sweeptype=absolute", "start=flo+Bandwidth", "maxsideband=10"],
         ["+", "annotate=status"]
     ]
     sweep = [
-        ["pss_test", "pss", "fund=flo", "harms=50", "errpreset=conservative"],
-        ["+", "annotate=status"],
         ["pac_test", "pac", "sweeptype=absolute", "start=flo+1K", "stop=flo+Bandwidth", "step=freq_step"],
         ["+", "maxsideband=10", "annotate=status"]
     ]
@@ -156,7 +152,7 @@ def gain_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simu
     parameters_to_edit['temperature'] = simulation_parameters['temp']
     parameters_to_edit['section'] = simulation_parameters['section']
     parameters_to_edit['freq_step'] = simulation_parameters['freq_step']
-    file_path = simulation_parameters['netlists']['gain_netlist']
+    file_path = simulation_parameters['netlists']['pss_netlist']
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
         # print(scs_content)
@@ -184,7 +180,7 @@ def gain_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simu
                 words.append(set_section)
                 new_line = ' '.join(words)
                 scs_new_content.append(new_line + " \n")
-            elif(words[0]=="//" and words[1]=="ANALYSIS" and words[2]=="STATEMENTS"):
+            elif(words[0]=="//" and words[1]=="PAC" and words[2]=="STATEMENTS"):
                 flag = 1
                 scs_new_content.append(line + " \n")
             elif flag==1:
@@ -193,7 +189,7 @@ def gain_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_parameters, simu
                 else:
                     new_line = ' '.join(sweep[line_number])
                 scs_new_content.append(new_line + " \n")
-                if line_number==3:
+                if line_number==2:
                     flag = 0
                     # in this case, all the analysis statements for gain have been printed, we exit by setting flag=0
                 else:
@@ -216,7 +212,7 @@ def integrated_NF_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_paramet
     parameters_to_edit['Bandwidth'] = RF_Bandwidth
     parameters_to_edit['temperature'] = simulation_parameters['temp']
     parameters_to_edit['section'] = simulation_parameters['section']
-    file_path = simulation_parameters['netlists']['NF_netlist']
+    file_path = simulation_parameters['netlists']['pss_netlist']
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
         # print(scs_content)
@@ -521,11 +517,8 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, alpha, 
         file_content.append(line + " \n")
         words = [
             "post iteration circuit parameters-->",
-            "RB:", str(post_iteration_circuit_parameters_iter['res_w']), 
-            "CL:", str(post_iteration_circuit_parameters_iter['cap_w']), 
-            "sw_fin:", str(post_iteration_circuit_parameters_iter['sw_fin']),
-            "w_per_fin:", str(post_iteration_circuit_parameters_iter['w_per_fin']),
-            "switch_w:", str(post_iteration_circuit_parameters_iter['switch_w']),
+            "Resistance width:", str(post_iteration_circuit_parameters_iter['res_w']), 
+            "Capacitance width:", str(post_iteration_circuit_parameters_iter['cap_w']), 
             "sw_mul:", str(post_iteration_circuit_parameters_iter['sw_mul'])
             ]
         line = ' '.join(words)
