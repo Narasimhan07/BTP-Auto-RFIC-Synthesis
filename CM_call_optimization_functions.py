@@ -19,20 +19,20 @@ import Passive_Mixer_CM.process_corners as pc
 """
 def get_output_conditions(CM_passive_mixer):
     CM_passive_mixer['output_conditions'] = {
-        'min_LO_freq':100e6, 
+        'min_LO_freq':500e6, 
         'max_LO_freq':1e9, 
         'RF_Bandwidth':10e6, 
         # the below three parameters are fixed circuit parameters namely
         #   G = gain of the OPAMP in the TIA
         #   gm = transconductance of the LNA
         #   RN = norton resistance (output resistance) of the LNA
-        'RN':100,
+        'RN':250,
         'G':100,
-        'gm':1,
+        'gm':20e-3,
         # the gain is from the input of the VCCS to the differential output of the mixer
         'gain_db':60, 
         'S11_db':0, 
-        'NF_db':6.5,
+        'NF_db':8,
         'iip3':2
     }
 # END of get_output_conditions()
@@ -44,7 +44,7 @@ def get_simulation_conditions(CM_passive_mixer):
     CM_passive_mixer['simulation']['temp'] = 27
     # below parameter is only applicable for frequency sweep analysis - in optimization S11 is swept
     CM_passive_mixer['simulation']['freq_step'] = 20e3
-    CM_passive_mixer['simulation']['freq_points'] = 3
+    CM_passive_mixer['simulation']['freq_points'] = 2
     # choice of section can be tt_lib or any of the fast slow corners ("for process corner variations")
     CM_passive_mixer['simulation']['section'] = "tt_lib"
 
@@ -55,6 +55,8 @@ def get_simulation_conditions(CM_passive_mixer):
     NF_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/CM_NF.scs"
 
     iip3_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/CM_iip3.scs"
+    
+    pss_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/CM_pss.scs"
 
     # relevant netlists for simulation in opt is stored in the below dict
     CM_passive_mixer['simulation']['netlists'] = {}
@@ -65,6 +67,8 @@ def get_simulation_conditions(CM_passive_mixer):
     CM_passive_mixer['simulation']['netlists']['NF_netlist'] = NF_netlist
 
     CM_passive_mixer['simulation']['netlists']['iip3_netlist'] = iip3_netlist
+
+    CM_passive_mixer['simulation']['netlists']['pss_netlist'] = pss_netlist
 
     # simulation details specific to iip3
     CM_passive_mixer['simulation']['iip3'] = {
@@ -83,7 +87,7 @@ def get_simulation_conditions(CM_passive_mixer):
  
     # each simulation result is stored in a .out file
     CM_passive_mixer['simulation']['S11'] = {}
-    CM_passive_mixer['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
+    CM_passive_mixer['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_single_pt.out"
     # for gain key in the dictionary contains the ocean script file path
     CM_passive_mixer['simulation']['gain'] = {}
     CM_passive_mixer['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_single_point_gain.ocn"
@@ -100,20 +104,20 @@ def get_optimization_parameters(CM_passive_mixer):
             'NF_db':{},
             'iip3':{}
         },
-        'max_iteration':50,
+        'max_iteration':100,
         'iter_number':0,
         'delta_threshold':0.001,
         'consec_iter':3,
         # learning rates
         'alpha':{
             'alpha_min':-1,
-            'start':0.1,
+            'start':0.01,
             'end':0.001,
             'alpha_mult':1,
-            'type':'linear' # type can be linear or log (nothing signifies default of constant alpha)
+            'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['RL', 'CL', 'switch_w']
+        'optimizing_variables':['res_w', 'cap_w', 'sw_mul']
 
     }
 # END of get_optimization_parameters()
@@ -142,6 +146,8 @@ def get_post_optimization_simulation_parameters(CM_passive_mixer):
 
     iip3_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/CM_iip3.scs"
 
+    pss_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/CM_pss.scs"
+
     # details for temperature analysis
     CM_passive_mixer['post_optimization']['temp_analysis']['temp'] = [27, 57]   # temperature list for analysis
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation'] = {}
@@ -151,6 +157,7 @@ def get_post_optimization_simulation_parameters(CM_passive_mixer):
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['gain_netlist'] = gain_netlist
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['NF_netlist'] = NF_netlist
     CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['iip3_netlist'] = iip3_netlist
+    CM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['pss_netlist'] = pss_netlist
     # setting flo for which this analysis has to be done
     CM_passive_mixer['post_optimization']['temp_analysis']['flo'] = 500e6
     CM_passive_mixer['post_optimization']['temp_analysis']['RF_Bandwidth'] = CM_passive_mixer['output_conditions']['RF_Bandwidth']
@@ -187,6 +194,7 @@ def get_post_optimization_simulation_parameters(CM_passive_mixer):
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['gain_netlist'] = gain_netlist
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['NF_netlist'] = NF_netlist
     CM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['iip3_netlist'] = iip3_netlist
+    CM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['pss_netlist'] = pss_netlist
     # setting flo for which this analysis has to be done
     CM_passive_mixer['post_optimization']['process_corners']['flo'] = 500e6
     CM_passive_mixer['post_optimization']['process_corners']['RF_Bandwidth'] = CM_passive_mixer['output_conditions']['RF_Bandwidth']
@@ -231,8 +239,8 @@ def set_loss_weights(CM_passive_mixer):
     # setting a constant S11,gain weight for all flo frequencies
 
     S11_loss_weight = 0.1
-    gain_loss_weight = 0.2
-    NF_loss_weight = 0.25
+    gain_loss_weight = 0.1
+    NF_loss_weight = 0.1
     iip3_loss_weight = 0.0
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:

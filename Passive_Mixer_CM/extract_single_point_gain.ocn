@@ -1,7 +1,9 @@
 openResults( "./psf" )
 results()
-v_out_mag = mag(harmonic(v("VO_IP" ?result "pac") -1)-harmonic(v("VO_IN" ?result "pac") -1) )
-gain_db = db20(v_out_mag)
+input_RF_current = mag(harmonic(i("/V0/PLUS" ?result "pac") '(0)))
+output_voltage = mag(harmonic( v("VO_IP" ?result "pac") -1)-harmonic( v("VO_IN" ?result "pac") -1 ))
+gain = output_voltage/input_RF_current
+gain_db = db20(gain)
 output_file = outfile( "results.txt" "w" )
 fprintf(output_file "%f" gain_db)
 close(output_file)

@@ -97,8 +97,11 @@ simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
 pss_test  pss  fund=flo  harms=50  errpreset=conservative
 +    annotate=status
 // PAC STATEMENTS
-pac_test  pac  sweeptype=absolute  start=flo+1K  stop=flo+Bandwidth  step=freq_step
+pac_test  pac  sweeptype=absolute  start=flo+1K  stop=flo+10M  lin=200
 +    maxsideband=10  annotate=status
+pnoise_test  (  VO_IP  VO_IN  )  pnoise  sweeptype=absolute  start=1K
++       stop=Bandwidth  lin=100  maxsideband=10  iprobe=PORT0  refsideband=-1
++       noiseout=[usb]  annotate=status
 modelParameter info what=models where=rawfile
 element info what=inst where=rawfile
 outputParameter info what=output where=rawfile
