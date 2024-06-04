@@ -13,6 +13,7 @@ parameters prf=-10
 parameters prf_min=-30 
 parameters prf_max=-10 
 parameters prf_step=0.5 
+<<<<<<< HEAD
 parameters res_w=45.83999999999992 
 parameters sw_mul=78 
 parameters temperature=27 
@@ -82,6 +83,81 @@ R2 (net011 0) resistor r=50
 R0 (net08 0) resistor r=50 
 R1 (net012 0) resistor r=50 
 PORT5 (net022 net021) port r=50 type=dc 
+=======
+parameters res_w=35.1317291919 
+parameters sw_mul=2 
+parameters temperature=27
+include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib 
+ 
+// Library name: Passive_mixer_ee20b087
+// Cell name: RC_tank
+// View name: schematic
+subckt RC_tank in
+parameters _par0=10 _par1=10
+    R0 (in 0 0) rppolyl_rf l=_par0*1u w=2u m=1 mismatchflag=0
+    C4 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C3 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C2 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C1 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C0 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+ends RC_tank
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: voltage_mode_SB_25D_tsmc
+// View name: schematic
+subckt voltage_mode_SB_25D_tsmc LO\+ LO\- VO_N VO_P V_RF
+    I0 (VO_P) RC_tank _par0=res_w _par1=cap_w
+    I1 (VO_N) RC_tank _par0=res_w _par1=cap_w
+    M0 (V_RF LO\+ VO_P 0) nmos_rf lr=60n wr=2u nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n sca=1.53113 scb=3.91406e-06 scc=5.45081e-12 m=sw_mul \
+        sigma=1
+    M1 (V_RF LO\- VO_N 0) nmos_rf lr=60n wr=2u nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n sca=1.53113 scb=3.91406e-06 scc=5.45081e-12 m=sw_mul \
+        sigma=1
+ends voltage_mode_SB_25D_tsmc
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: Mixer_SB_VM_25D_TB_tsmc
+// View name: schematic
+E4 (net022 0 VO_IP 0) vcvs gain=1.0
+E3 (\270D_OUT 0 net011 0) vcvs gain=1.0
+E2 (\90D_OUT 0 net07 0) vcvs gain=1.0
+E1 (\180D_OUT 0 net012 0) vcvs gain=1.0
+E0 (\0D_OUT 0 net08 0) vcvs gain=1.0
+E5 (net021 0 VO_IN 0) vcvs gain=1.0
+I0 (\0D_OUT \180D_OUT VO_IN VO_IP net9) voltage_mode_SB_25D_tsmc
+I1 (\90D_OUT \270D_OUT VO_QN VO_QP net9) voltage_mode_SB_25D_tsmc
+PORT0 (net9 0) port r=50 type=sine freq=frf1 dbm=prf freq2=frf2 dbm2=prf \
+        pacmag=1 fundname="frf1" fundname2="frf2"
+PORT4 (net011 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_270"
+PORT3 (net07 0) port r=50 type=pulse delay=0.25*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_90"
+PORT2 (net012 0) port r=50 type=pulse delay=0.5*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_180"
+PORT1 (net08 0) port r=50 type=pulse delay=0 val0=0 val1=1.2 period=1/flo \
+        rise=0.001*(1/flo) fall=0.001*(1/flo) width=0.25*(1/flo) \
+        fundname="LO_0"
+R3 (net07 0) resistor r=50
+R2 (net011 0) resistor r=50
+R0 (net08 0) resistor r=50
+R1 (net012 0) resistor r=50
+PORT5 (net022 net021) port r=50 type=dc
+simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
+    iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 \
+    rforce=1 maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \
+    sensfile="../psf/sens.output" checklimitdest=psf 
+>>>>>>> de05f4d7f875ee21af57f26e4553389562f33d42
 // ANALYSIS STATEMENTS 
 sweephb  sweep  param=prf  start=prf_min  stop=prf_max  step=prf_step  { 
 hb_test  hb  autotstab=yes  oversample=[1  1  1]  fundfreqs=[(flo)  (frf1) 

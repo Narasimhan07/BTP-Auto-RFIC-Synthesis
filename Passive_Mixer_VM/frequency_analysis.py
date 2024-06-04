@@ -23,26 +23,18 @@ def freq_analysis(cir, post_optimization_freq):
     "S11 over bandwidth of I arm at flo = " + str(post_optimization_freq['flo']), "linear"
     )
 
-    # 2) running gain sweep
-    cf.gain_netlist_edit(post_optimization_freq['flo'], post_optimization_freq['RF_Bandwidth'], 
-        cir.post_optimization_circuit_parameters, post_optimization_freq['simulation'], "sweep"
-    )
-    # after editing the netlist, run the sweep
-    cf.run_spectre_with_PSF_file(post_optimization_freq['simulation']['netlists']['gain_netlist'])
+    # gain sweep
+    cf.gain_netlist_edit(post_optimization_freq['simulation'], "sweep")
+
+    # running gain, NF and s11 together
+    # after editing the netlist, run the pss sweep followed by pac, pnoise and psp
+    cf.run_spectre_with_PSF_file(post_optimization_freq['simulation']['netlists']['pss_netlist'])
     # the function to extract results for gain_sweep returns freq list and gain @ each freq list
     freq_list_2, gain_db_list = cf.extract_gain(post_optimization_freq['simulation']['gain']['ocean_script'], "sweep")
     # INSERT MATPLOTLIB FUNCTION TO PLOT gain
     cf.plot_result(freq_list_2, gain_db_list, "frequency (Hz)", "gain (dB)",
     "conversion gain of I arm at flo = " + str(post_optimization_freq['flo']), "semilogx"
     )
-
-    # 3) running noise figure
-    cf.integrated_NF_netlist_edit(
-        post_optimization_freq['flo'], post_optimization_freq['RF_Bandwidth'], cir.post_optimization_circuit_parameters,
-        post_optimization_freq['simulation']
-    )
-    # after editing the netlist, run the sweep
-    cf.run_spectre_with_PSF_file(post_optimization_freq['simulation']['netlists']['NF_netlist'])
     # the function to extract results for integrated NF returns freq list and NF @ each freq list
     integ_NF, freq_list_3, NF_db_list = cf.extract_integrated_NF(post_optimization_freq['simulation']['NF']['ocean_script'], True)
     print("Integrated Noise figure at flo = ", post_optimization_freq['flo'], " is = ", integ_NF)
