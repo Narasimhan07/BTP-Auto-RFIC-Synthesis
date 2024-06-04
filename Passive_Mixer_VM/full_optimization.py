@@ -60,7 +60,7 @@ def full_opt(cir, optimization_parameters, output_conditions):
         post_iteration_circuit_parameters_iter[i] = cir.get_post_iteration_circuit_parameters()
 
         # cf.print_post_iteration(loss_iter, post_iteration_circuit_parameters_iter, i, 2)
-        cf.write_opt_results(loss_iter[i],post_iteration_circuit_parameters_iter[i], alpha, i)
+        cf.write_opt_results(loss_iter[i],post_iteration_circuit_parameters_iter[i], simulated_output_parameters_iter[i], alpha, i)
         # checks for stop before max_iterations
         flag_loss = gd.check_stop_loss(loss_iter, i, consec_iter)
         flag_apha = gd.check_stop_alpha(alpha, i, alpha_min)
