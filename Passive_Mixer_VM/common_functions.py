@@ -154,7 +154,6 @@ def S11_netlist_edit(simulation_parameters, netlist_type):
 
 # ------------------------------------------------ gain netlist -------------------------------------------------------
 def gain_netlist_edit(simulation_parameters, netlist_type):
-    parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
     # adding the flo and bandwidth varables also to the parameters to edit in the gain netlist
     # netlist_type can be "single_point" or "sweep"
     # gain is carried out at frf = flo+Bandwidth for single point and from start=flo-Bandwidth to stop=flo+Bandwidth for "sweep"
@@ -188,7 +187,7 @@ def gain_netlist_edit(simulation_parameters, netlist_type):
                 else:
                     new_line = ' '.join(sweep[line_number])
                 scs_new_content.append(new_line + " \n")
-                if line_number==2:
+                if line_number==1:
                     flag = 0
                     # in this case, all the analysis statements for gain have been printed, we exit by setting flag=0
                 else:
