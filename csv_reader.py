@@ -13,12 +13,12 @@ y_values = []
 
 # Open the CSV file
 with open(file_path) as csvfile:
-    	# Create a CSV reader
-    	csv_reader = csv.reader(csvfile)
-    	# Skip the header row
-    	next(csv_reader)
-    	# Iterate over each row in the CSV file
-    	for row in csv_reader:
+	# Create a CSV reader
+	csv_reader = csv.reader(csvfile)
+	# Skip the header row
+	next(csv_reader)
+	# Iterate over each row in the CSV file
+	for row in csv_reader:
 		# Assuming x-coordinates are in column A and y-coordinates are in column B
 		x_values.append(float(row[0]))  # Convert to float if necessary
 		y_values.append(float(row[1]))  # Convert to float if necessary
@@ -37,14 +37,14 @@ with open(ocn_file_path, 'r') as file:
 	# print(scs_content)
 	new_line = ""
 	ocn_new_content = list()
-        for line in ocn_content:
-        	line = line.strip()
-            	words = line.split(' ')
-            	if(words[0] == "iip3"):
+	for line in ocn_content:
+		line = line.strip()
+		words = line.split(' ')
+		if(words[0] == "iip3"):
 			words[7] = extrapolation_point
-                new_line = ' '.join(words)
-                # print(new_line)
-                ocn_new_content.append(new_line + " \n")
+			new_line = ' '.join(words)
+			# print(new_line)
+			ocn_new_content.append(new_line + " \n")
 
 with open(ocn_file_path, 'w') as file:
 	file.writelines(ocn_new_content)

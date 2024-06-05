@@ -35,7 +35,7 @@ mismatchflag=0
 C0 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
 mismatchflag=0 
 ends RC_tank 
-// End of subcircuit definition. 
+// End of subcircuit definition.
  
 // Library name: Passive_mixer_ee20b087 
 // Cell name: voltage_mode_SB_25D_tsmc 

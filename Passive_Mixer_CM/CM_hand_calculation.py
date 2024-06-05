@@ -32,28 +32,28 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     hand_calculated_circuit_parameters['gm'] = gm
     # setting RL as 1000 ohms
     RL = 1e3
-    hand_calculated_circuit_parameters['RL'] = RL
-    # assigning the computed value of res_w from RL
-    # hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 3)
+    #hand_calculated_circuit_parameters['RL'] = RL
+    #assigning the computed value of res_w from RL
+    hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 5)
 
     # Performing hand calculation for CL
     # setting CL to 10pF
     CL = 10e-12
-    hand_calculated_circuit_parameters['CL'] = CL
-    # hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_um_rf_w_l(CL, 5)
+    # hand_calculated_circuit_parameters['CL'] = CL
+    hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_w_l(CL, 3)
     # now we approximate the value of sw_fin and sw_mul that gives us the required Rsw
     file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/switch_resistance.scs"
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
     f = 0.5*(f_max + f_min)
     # multiplier for the nmos switch
-    mul = 2
+    fingers = 1
     # the number of fingers need to be swept from min_fingers to max_fingers
     # the switch resistance is approximated at some particular temperature
-    min_fingers = 10
-    max_fingers = 60
+    min_mul = 10
+    max_mul = 60
     temperature = 27
-    parameter_to_edit = ['f','min_fingers','max_fingers','mul', 'temperature']
-    parameter_value = {'f':f,'min_fingers':min_fingers,'max_fingers':max_fingers,'mul':mul, 'temperature':temperature}
+    parameter_to_edit = ['f','min_mul','max_mul','fingers', 'temperature']
+    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul,'nfin':fingers, 'temperature':temperature}
 
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -89,24 +89,19 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
             line = line.strip()
             words = line.split(' ')
         
-            if(words[0] == str(min_fingers)):
+            if(words[0] == str(min_mul)):
                 start = True
                 # we define a variable nmos_ron the stores the on resistance 
                 nmos_ron = float(words[-1])
-                nfin = float(words[0])
+                mul = float(words[0])
                 continue
             if(start):
                 if(abs(float(words[-1]) - Rsw)<abs(nmos_ron - Rsw)):
                     # if the absolute difference in nmos_ron and Rsw is lesser than the previous iteration, nmos_ron value is replaced
                     nmos_ron = float(words[-1])
-                    nfin = float(words[0])
-                if(words[0] == str(max_fingers)):
+                    mul = float(words[0])
+                if(words[0] == str(max_mul)):
                     start = False
                 else:
                     continue
-    hand_calculated_circuit_parameters['sw_fin'] = nfin
     hand_calculated_circuit_parameters['sw_mul'] = mul
-    w_per_fin = 1e-6
-    hand_calculated_circuit_parameters['w_per_fin'] = w_per_fin
-    effective_switch_width = nfin*w_per_fin
-    hand_calculated_circuit_parameters['switch_w'] = effective_switch_width
