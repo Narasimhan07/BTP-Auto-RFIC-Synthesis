@@ -57,23 +57,18 @@ def get_simulation_conditions(VM_passive_mixer):
         'tone 1':1e6,
         'tone 2':1.1e6,
         'prf':-10,
-        'prf_min':-30,
+        'prf_min':-40,
         'prf_max':-10,
-        'prf_step':0.5,
+        'prf_step':1,
         'ocean_script':{
             'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/write_ip3_slope_to_CSV.ocn",
             'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_iip3_post_optimization.ocn"
         }
     }
  
-    # each simulation result is stored in a .out file
-    VM_passive_mixer['simulation']['S11'] = {}
-    VM_passive_mixer['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_single_pt.out"
-    # for gain key in the dictionary contains the ocean script file path
-    VM_passive_mixer['simulation']['gain'] = {}
-    VM_passive_mixer['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_single_point_gain.ocn"
-    VM_passive_mixer['simulation']['NF'] = {}
-    VM_passive_mixer['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_NF.ocn"
+    # each simulation result is stored in csv files and we extract them using an ocean script
+    VM_passive_mixer['simulation']['extract_results'] = {}
+    VM_passive_mixer['simulation']['extract_results']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_results.ocn"
 
 # END of get_simulation_conditions()
 
@@ -85,14 +80,14 @@ def get_optimization_parameters(VM_passive_mixer):
             'NF_db':{},
             'iip3':{}
         },
-        'max_iteration':100,
+        'max_iteration':200,
         'iter_number':0,
         'delta_threshold':0.001,
-        'consec_iter':3,
+        'consec_iter':20,
         # learning rates
         'alpha':{
             'alpha_min':-1,
-            'start':0.1,
+            'start':0.01,
             'end':0.001,
             'alpha_mult':1,
             'type':'' # type can be linear or log (nothing signifies default of constant alpha)
@@ -225,7 +220,7 @@ def set_loss_weights(VM_passive_mixer):
     S11_loss_weight = 0.1
     gain_loss_weight = 0.1
     NF_loss_weight = 0.1
-    iip3_loss_weight = 0.05
+    iip3_loss_weight = 0.1
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:
         VM_passive_mixer['optimization']['loss_weights']['S11_db'][flo] = S11_loss_weight
@@ -265,7 +260,7 @@ fo.full_opt(cir, VM_passive_mixer['optimization'], VM_passive_mixer['output_cond
 
 # ---------------------------------------- ANALYSIS FUNCTIONS -----------------------------------------
 # defining run variables, set them as True or False based on whether you want to run them or not
-run_freq_analysis = True
+run_freq_analysis = False
 run_temp_analysis = False
 run_process_corners = False
 # FREQUENCY ANALYSIS
