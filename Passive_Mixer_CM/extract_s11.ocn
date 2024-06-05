@@ -1,0 +1,6 @@
+openResults( "./psf" )
+results()
+s11 = getData("s11" ?result "psp")
+s11_db = db20(s11)
+awvSaveToCSV(s11_db "s11.csv")
+exit

@@ -1,23 +1,23 @@
 // Generated for: spectre
-// Generated on: Jun  3 13:16:23 2024
+// Generated on: Jun  5 12:12:07 2024
 // Design library name: Narasimhan
 // Design cell name: Mixer_SB_CM_25D_TB_tsmc
 // Design view name: schematic
 simulator lang=spectre
 global 0
 parameters cap_w=10
-parameters res_w=50
+parameters res_w=75
 parameters gm=20m
 parameters RN=250
+parameters G=100
+parameters sw_mul=75
 parameters flo=500M
 parameters frf1=501M
 parameters frf2=501.1M
 parameters prf=-10
-parameters prf_min=-40
-parameters prf_max=-5
-parameters prf_step=0.5
-parameters G=100
-parameters sw_mul=30
+parameters prf_min=-10
+parameters prf_max=20
+parameters prf_step=1
 parameters temperature=27
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib
 
@@ -66,11 +66,11 @@ I1 (VO_QN VO_QP LO_90 LO_270 net06) current_mode_25D_mixer_tsmc
 PORT6 (net026 net025) port r=50 type=dc
 PORT5 (net027 net028) port r=50 type=dc
 R5 (net046 0) resistor r=RN
-R4 (net05 0) resistor r=50
 R3 (net16 0) resistor r=50
 R2 (net10 0) resistor r=50
 R1 (net17 0) resistor r=50
 R0 (net11 0) resistor r=50
+R4 (net05 0) resistor r=50
 PORT4 (net16 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \
         period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
         width=0.25*(1/flo) fundname="LO_270"
@@ -101,7 +101,7 @@ simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
     sensfile="../psf/sens.output" checklimitdest=psf 
 // ANALYSIS STATEMENTS
 sweephb  sweep  param=prf  start=prf_min  stop=prf_max  step=prf_step  {
-  hb_test  hb  autotstab=yes  oversample=[1  1  1]  fundfreqs=[(flo)  (frf1)
+  hb  hb  autotstab=yes  oversample=[1  1  1]  fundfreqs=[(flo)  (frf1)
 +   (frf2)]  maxharms=[30  3  3]  errpreset=conservative  annotate=status
 
 }
