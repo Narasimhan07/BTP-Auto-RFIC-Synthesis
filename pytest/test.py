@@ -19,6 +19,3 @@ with open(CSV_file_path) as csvfile:
             y_values.append(float(row[i+1]))
 print(x_values)
 print(y_values)
-        
-
-

@@ -1,17 +1,18 @@
 // Generated for: spectre
-// Generated on: Jun  3 12:00:40 2024
+// Generated on: Jun  5 13:24:19 2024
 // Design library name: Narasimhan
 // Design cell name: Mixer_SB_CM_25D_TB_tsmc
 // Design view name: schematic
 simulator lang=spectre
 global 0
-parameters cap_w=10
-parameters res_w=50
-parameters flo=500M
-parameters Bandwidth=10M
-parameters freq_step=20K
 parameters G=100
-parameters sw_mul=40
+parameters sw_mul=60
+parameters res_w=100
+parameters cap_w=20
+parameters flo=500M
+parameters flo_start=100M
+parameters flo_stop=1G
+parameters Bandwidth=10M 
 parameters temperature=27
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib
 
@@ -57,7 +58,7 @@ ends current_mode_25D_mixer_tsmc
 // View name: schematic
 I0 (VO_IN VO_IP LO_0 LO_180 net06) current_mode_25D_mixer_tsmc
 I1 (VO_QN VO_QP LO_90 LO_270 net06) current_mode_25D_mixer_tsmc
-PORT0 (net06 0) port r=50 type=dc pacmag=1
+PORT0 (net06 0) port r=50 type=dc
 PORT6 (net026 net025) port r=50 type=dc
 PORT5 (net027 net028) port r=50 type=dc
 R3 (net16 0) resistor r=50
@@ -89,12 +90,14 @@ simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
     maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \
     sensfile="../psf/sens.output" checklimitdest=psf 
 // ANALYSIS STATEMENTS
-pss_test  pss  fund=flo  harms=50  errpreset=conservative
+sweeppss  sweep  param=flo  start=flo_start  stop=flo_stop  lin=2  {
+  pss_test  pss  fund=flo  harms=50  errpreset=conservative  restart=yes
 +    annotate=status
 // PSP STATEMENTS
-psp_test  psp  sweeptype=absolute  start=flo-Bandwidth  stop=flo+Bandwidth  step=freq_step
-+    portharmsvec=[1]  ports=[PORT0]  annotate=status file="sp_sweep.out"
-+ datatype=dbphase
+  psp_test  psp  sweeptype=absolute  start=flo  portharmsvec=[1]
++      ports=[PORT0]  annotate=status
+}
+
 modelParameter info what=models where=rawfile
 element info what=inst where=rawfile
 outputParameter info what=output where=rawfile

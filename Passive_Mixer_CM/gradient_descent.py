@@ -117,49 +117,39 @@ class Circuit:
         # defining an array for flo 
         flo_array = np.linspace(output_conditions['min_LO_freq'], output_conditions['max_LO_freq'],freq_points)
 
+        # 1) simulate the s11 netlist and extract s11 information
+        cf.S11_netlist_edit(freq_array, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters,
+        self.simulation_parameters, "single_point"
+        )
+        cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['S11_netlist'])
+        # extracting the s11 values after simulation
+        freq_list, S11_db_list = cf.extract_S11(self.simulation_parameters['S11']['ocean_script'])
+        i = 0
+        for flo in freq_list:
+            # a) adding s11 results
+            self.simulated_output_parameters['S11_db'][flo] = S11_db_list[i]
+            i = i + 1
+
+        # 2) running pss sweep followed by pac and pnoise simulation for the frequency points
+        cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], freq_array, output_conditions['RF_Bandwidth'],
+        self.pre_iteration_circuit_parameters, self.simulation_parameters
+        )
+        # edit the pac statement inside this netlist
+        cf.gain_netlist_edit(self.simulation_parameters, "single_point")
+        # run the simulation for pac and pnoise
+        cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
+        # extracting the noise and gain results
+        freq_list, gain_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
+        i = 0
+        for flo in freq_list:
+            # a) adding gain results
+            self.simulated_output_parameters['gain_db'][flo] = gain_db_list[i]
+            # b) adding NF results
+            self.simulated_output_parameters['NF_db'][flo] = NF_db_list[i]
+            i = i + 1
+
+        # 3) Adding iip3 results at LO = flo to the simulated output parameters dict
         for flo in flo_array:
-            # 1) for S11 simulation the type of circuit determines whether we run sweep or single point
-            if self.type == "VM":
-                # Adding S11 results at f = flo+bandwidth to the simulated output parameters dict
-                # Edit the VM_S11.scs netlist with the circuit parameters
-                cf.S11_netlist_edit(
-                    flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters, "single_point"
-                )
-                # simulate the spectre netlist
-                # run spectre for all simulations (excluding iip3) at after NF netlist edit 
-
-            elif self.type == "CM":
-                # for CM we perform S11 sweep over the bandwidth and then take the average value of S11 over the sweep
-                cf.S11_netlist_edit(
-                    flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters, "sweep"
-                )
-                # simulate the spectre netlist 
-                cf.run_spectre(self.simulation_parameters['netlists']['S11_netlist'])
-                # read the output from sp_single_pt.out
-                # S11 computed at flo is stored in the dict in simulated output parameters using the key = flo
-                self.simulated_output_parameters['S11_db'][flo] = abs(cf.extract_S11(self.simulation_parameters['S11']['.out_file_path'], "single_point"))
-
-            # 2) Adding gain results at f = flo+bandwidth to the simulated output parameters dict
-            # Edit the gain netlist with the circuit parameters
-            cf.gain_netlist_edit(
-                flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters, "single_point"
-            )
-            # simulate the spectre netlist for gain and the respective psf file with outputs
-            # run spectre for all simulations (excluding S11, iip3) at after NF netlist edit 
-            
-            # 3) Adding NF results at LO = flo to the simulated output parameters dict
-            # Edit the NF netlist with the circuit parameters
-            cf.integrated_NF_netlist_edit(
-                flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters
-            )
-            # simulate the spectre netlist for gain, NF and S11 and the respective psf file with outputs
-            cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
-            # gain computed using ocean script at flo is stored in the dict in simulated output parameters using the key = flo
-            self.simulated_output_parameters['gain_db'][flo] = cf.extract_gain(self.simulation_parameters['gain']['ocean_script'], "single_point")
-            # NF computed using ocean scripts at flo is stored in the dict in simulated output parameters using the key = flo
-            self.simulated_output_parameters['NF_db'][flo] = cf.extract_integrated_NF(self.simulation_parameters['NF']['ocean_script'], False)
-
-            # 4) Adding iip3 results at LO = flo to the simulated output parameters dict
             # Edit the iip3 netlist with the circuit parameters
             cf.iip3_netlist_edit(
                 flo, self.pre_iteration_circuit_parameters, self.simulation_parameters
@@ -193,47 +183,40 @@ class Circuit:
                 'NF_db':{},
                 'iip3':{}
             }
+            # 1) simulate the s11 netlist and extract s11 information
+            cf.S11_netlist_edit(freq_array, output_conditions['RF_Bandwidth'], initial_circuit_parameters_dict[i],
+            self.simulation_parameters, "single_point"
+            )
+            cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['S11_netlist'])
+            # extracting the s11 values after simulation
+            freq_list, S11_db_list = cf.extract_S11(self.simulation_parameters['S11']['ocean_script'])
+            j = 0
+            for flo in freq_list:
+                # a) adding s11 results
+                simulated_output_parameters_dict[i]['S11_db'][flo] = S11_db_list[j]
+                j = j + 1
+            
+            # 2) running pss sweep followed by pac and pnoise simulation for the frequency points
+            cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], freq_array, output_conditions['RF_Bandwidth'],
+            initial_circuit_parameters_dict[i], self.simulation_parameters
+            )
+            # edit the pac statement inside this netlist
+            cf.gain_netlist_edit(self.simulation_parameters, "single_point")
+            # run the simulation for pac and pnoise
+            cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
+            # extracting the noise and gain results
+            freq_list, gain_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
+            j = 0
+            for flo in freq_list:
+                # a) adding gain results
+                simulated_output_parameters_dict[i]['gain_db'][flo] = gain_db_list[j]
+                # b) adding NF results
+                simulated_output_parameters_dict[i]['NF_db'][flo] = NF_db_list[j]
+                j = j + 1
+            
+            # 3) Adding iip3 results at LO = flo to the simulated output parameters dict
             for flo in flo_array:
-                # 1) Edit the S11 netlist with the circuit parameters
-                if self.type == "VM":
-                    # Adding S11 results at f = flo+bandwidth to the simulated output parameters dict
-                    # Edit the VM_S11.scs netlist with the circuit parameters
-                    cf.S11_netlist_edit(
-                        flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters, "single_point"
-                    )
-                    # simulate the spectre netlist
-                    # run spectre for all simulations (excluding iip3) at after NF netlist edit 
-
-                elif self.type == "CM":
-                    # for CM we perform S11 sweep over the bandwidth and then take the average value of S11 over the sweep
-                    cf.S11_netlist_edit(
-                        flo, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters, self.simulation_parameters, "single_point"
-                    )
-                    # simulate the spectre netlist 
-                    cf.run_spectre(self.simulation_parameters['netlists']['S11_netlist'])
-                    # read the output from sp_single_pt.out
-                    # S11 computed at flo is stored in the dict in simulated output parameters using the key = flo
-                    self.simulated_output_parameters['S11_db'][flo] = cf.extract_S11(self.simulation_parameters['S11']['.out_file_path'], "single_point")
-
-                # 2) Edit the gain netlist with the circuit parameters
-                cf.gain_netlist_edit(
-                    flo, output_conditions['RF_Bandwidth'], initial_circuit_parameters_dict[i], self.simulation_parameters, "single_point"
-                )
-                # simulate the spectre netlist
-                # run spectre for all simulations (excluding iip3) at after NF netlist edit 
-
-                # 3) Edit the NF netlist with the circuit parameters
-                cf.integrated_NF_netlist_edit(
-                    flo, output_conditions['RF_Bandwidth'], initial_circuit_parameters_dict[i], self.simulation_parameters
-                )
-                # simulate the spectre netlist for gain, NF and the respective psf file with outputs
-                cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
-                # gain computed using ocean script at flo is stored in the dict in simulated output parameters using the key = flo
-                self.simulated_output_parameters['gain_db'][flo] = cf.extract_gain(self.simulation_parameters['gain']['ocean_script'], "single_point")
-                # NF computed using ocean scripts at flo is stored in the dict in simulated output parameters using the key = flo
-                self.simulated_output_parameters['NF_db'][flo] = cf.extract_integrated_NF(self.simulation_parameters['NF']['ocean_script'], False)
-
-                # 4) Edit the iip3 netlist with the circuit parameters
+                # Edit the iip3 netlist with the circuit parameters
                 cf.iip3_netlist_edit(
                     flo, initial_circuit_parameters_dict[i], self.simulation_parameters
                 )
@@ -245,7 +228,7 @@ class Circuit:
 
             # END for loop
             # END of obtaining simulated output parameters for one set of initial circuit parameters in initial_circuit_parameters_dict
-        
+        # END for loop
         return simulated_output_parameters_dict
 
     # END of run_circuit_multiple()
@@ -278,20 +261,18 @@ class Circuit:
                     change  = change + circuit_parameters_slope[parameter][loss_name]
                 # END for loop
                 # increment = slope*learning rate*(pre_iteration_circuit_parameter)^2
-                change = change*alpha
-                # now we check if this change is more than 20% of the parameter value
-                # if YES, we limit the change to 50% only
-                # change_limit = 0.5
-                # if(change > change_limit*self.pre_iteration_circuit_parameters[parameter]):
-                #     change = change_limit*self.pre_iteration_circuit_parameters[parameter]
-                # if(change < (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]):
-                #     change = (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]
+                change = change*alpha*(self.pre_iteration_circuit_parameters[parameter]**2)
+                # now we check if this change is more than 25% of the parameter value
+                # if YES, we limit the change to 25% only
+                change_limit = 0.25
+                if(change > change_limit*self.pre_iteration_circuit_parameters[parameter]):
+                    change = change_limit*self.pre_iteration_circuit_parameters[parameter]
+                if(change < (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]):
+                    change = (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]
                 # ENTER THE UPDATING PARAMETER EQUATIONS
-                if parameter == "sw_mul":
-                    if change > 0:
-                        self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] + 1
-                    else:
-                        self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - 1
+                if parameter == 'sw_mul':
+                    self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - cf.round_off_fun(change)
+
                 else:
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
             # END for loop

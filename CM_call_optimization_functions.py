@@ -19,7 +19,7 @@ import Passive_Mixer_CM.process_corners as pc
 """
 def get_output_conditions(CM_passive_mixer):
     CM_passive_mixer['output_conditions'] = {
-        'min_LO_freq':500e6, 
+        'min_LO_freq':100e6, 
         'max_LO_freq':1e9, 
         'RF_Bandwidth':10e6, 
         # the below three parameters are fixed circuit parameters namely
@@ -33,7 +33,7 @@ def get_output_conditions(CM_passive_mixer):
         'gain_db':60, 
         'S11_db':0, 
         'NF_db':8,
-        'iip3':2
+        'iip3':10
     }
 # END of get_output_conditions()
 
@@ -43,8 +43,8 @@ def get_simulation_conditions(CM_passive_mixer):
     CM_passive_mixer['simulation'] = {}
     CM_passive_mixer['simulation']['temp'] = 27
     # below parameter is only applicable for frequency sweep analysis - in optimization S11 is swept
-    CM_passive_mixer['simulation']['freq_step'] = 20e3
-    CM_passive_mixer['simulation']['freq_points'] = 2
+    CM_passive_mixer['simulation']['freq_step'] = 0
+    CM_passive_mixer['simulation']['freq_points'] = 3
     # choice of section can be tt_lib or any of the fast slow corners ("for process corner variations")
     CM_passive_mixer['simulation']['section'] = "tt_lib"
 
@@ -76,8 +76,8 @@ def get_simulation_conditions(CM_passive_mixer):
         'tone 1':1e6,
         'tone 2':1.1e6,
         'prf':-10,
-        'prf_min':-30,
-        'prf_max':-10,
+        'prf_min':-10,
+        'prf_max':15,
         'prf_step':1,
         'ocean_script':{
             'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/write_ip3_slope_to_CSV.ocn",
@@ -85,14 +85,11 @@ def get_simulation_conditions(CM_passive_mixer):
         }
     }
  
-    # each simulation result is stored in a .out file
+    # for simulations the dictionary contains the ocean script file path for extracting outputs
     CM_passive_mixer['simulation']['S11'] = {}
-    CM_passive_mixer['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_single_pt.out"
-    # for gain key in the dictionary contains the ocean script file path
-    CM_passive_mixer['simulation']['gain'] = {}
-    CM_passive_mixer['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_single_point_gain.ocn"
-    CM_passive_mixer['simulation']['NF'] = {}
-    CM_passive_mixer['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_NF.ocn"
+    CM_passive_mixer['simulation']['S11']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_s11.ocn"
+    CM_passive_mixer['simulation']['extract_results'] = {}
+    CM_passive_mixer['simulation']['extract_results']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_results.ocn"
 
 # END of get_simulation_conditions()
 
@@ -107,7 +104,7 @@ def get_optimization_parameters(CM_passive_mixer):
         'max_iteration':100,
         'iter_number':0,
         'delta_threshold':0.001,
-        'consec_iter':3,
+        'consec_iter':20,
         # learning rates
         'alpha':{
             'alpha_min':-1,
@@ -238,10 +235,10 @@ def set_loss_weights(CM_passive_mixer):
     flo_array = np.linspace(f_min, f_max, freq_points)
     # setting a constant S11,gain weight for all flo frequencies
 
-    S11_loss_weight = 0.1
+    S11_loss_weight = 0.05
     gain_loss_weight = 0.1
     NF_loss_weight = 0.1
-    iip3_loss_weight = 0.0
+    iip3_loss_weight = 0.1
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:
         CM_passive_mixer['optimization']['loss_weights']['S11_db'][flo] = S11_loss_weight
@@ -281,7 +278,7 @@ fo.full_opt(cir, CM_passive_mixer['optimization'], CM_passive_mixer['output_cond
 
 # ---------------------------------------- ANALYSIS FUNCTIONS -----------------------------------------
 # defining run variables, set them as True or False based on whether you want to run them or not
-run_freq_analysis = True
+run_freq_analysis = False
 run_temp_analysis = False
 run_process_corners = False
 # FREQUENCY ANALYSIS

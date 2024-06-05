@@ -120,7 +120,7 @@ class Circuit:
         # first we set up the generic circuit parameters and global parameters for the pss_netlist
         # pss_netlist runs pac, pnoise and psp simulation
         cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], flo_array, output_conditions['RF_Bandwidth'],
-        self.pre_iteration_circuit_parameters, self.simulated_output_parameters
+        self.pre_iteration_circuit_parameters, self.simulation_parameters
         )
         # inserting the correct analysis statements for s11 psp simulation and pac simulation in netlist
         cf.S11_netlist_edit(self.simulation_parameters, "single_point")
@@ -176,7 +176,7 @@ class Circuit:
             # first we set up the generic circuit parameters and global parameters for the pss_netlist
             # pss_netlist runs pac, pnoise and psp simulation
             cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], flo_array, output_conditions['RF_Bandwidth'],
-            initial_circuit_parameters_dict[i], self.simulated_output_parameters
+            initial_circuit_parameters_dict[i], self.simulation_parameters
             )
             # inserting the correct analysis statements for s11 psp simulation and pac simulation in netlist
             cf.S11_netlist_edit(self.simulation_parameters, "single_point")
@@ -184,7 +184,7 @@ class Circuit:
             # running spectre for pss sweep followed by pac, psp, pnoise
             cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
             # extracting the s11, noise and gain results
-            freq_list, gain_db_list, S11_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_result']['ocean_script'])
+            freq_list, gain_db_list, S11_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
             j = 0
             for flo in freq_list:
                 # 1) adding s11 results
@@ -240,7 +240,7 @@ class Circuit:
                 for loss_name in change_loss_parameters:
                     change  = change + circuit_parameters_slope[parameter][loss_name]
                 # increment = slope*learning rate*(pre_iteration_circuit_parameter)^2
-                change = change*alpha
+                change = change*alpha*(self.pre_iteration_circuit_parameters[parameter]**2)
                 # now we check if this change is more than 25% of the parameter value
                 # if YES, we limit the change to 20% only
                 change_limit = 0.5

@@ -15,7 +15,7 @@ import Passive_Mixer_CM.common_functions as cf
 
 def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # We set a value for the switch resistance; Corresponding number of fingers to approximate Rsw will be chosen later
-    Rsw = 3
+    Rsw = 5
     f_min = output_conditions['min_LO_freq']
     f_max = output_conditions['max_LO_freq']
     # We define variable RB, Rs and CL that will be assigned to the respective 'keys' in the hand_calculated_circuit_parameters dictionary
@@ -30,8 +30,8 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     hand_calculated_circuit_parameters['G'] = G
     gm = output_conditions['gm']
     hand_calculated_circuit_parameters['gm'] = gm
-    # setting RL as 1000 ohms
-    RL = 1e3
+    # setting RL as 3000 ohms
+    RL = 3e3
     #hand_calculated_circuit_parameters['RL'] = RL
     #assigning the computed value of res_w from RL
     hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 5)
