@@ -117,4 +117,14 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # total width of the switch = sw_mul*sw_wn
     switch_w = mul*wn
     hand_calculated_circuit_parameters['switch_w'] = switch_w
+    # # for determining the load capacitance presented by the switch, 
+    # # capacitance per unit um width is = 1 fF/um
+    # load_cap = switch_w
+    # # setting the starting value of rho = 2
+    # hand_calculated_circuit_parameters['rho'] = 2
+    # # adding the inverters details below
+    # # the variables related to the inverter chain are:
+    # # 1. the number of inverters = N
+    # # 2. the ratio of inverter size = rho
+    # # 3. for each inverter: wp, wn, mp, mn and wp_total = wp*mp, wn_total = wn*mn
 # END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer

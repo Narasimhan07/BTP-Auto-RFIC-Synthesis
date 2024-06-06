@@ -6,7 +6,7 @@ import copy
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-
+import math
 
 # ---------------------------------------------- RAMP FUNCTION for LOSS ---------------------------------------------------
 def ramp_func(x):
@@ -69,6 +69,18 @@ def set_mimcap_um_rf_w_l(CL, cap_count):
 ===========================================================================================================================
 -------------------------------------------- FUNCTIONS TO EDIT NETLIST FILE -----------------------------------------------
 """
+# ----------------------------------------------- Function to set buffer block --------------------------------------------
+def buffer_block(rho, load_cap):
+    # number of inverters = N
+    y = math.log((load_cap/4.17), rho)
+    if (round_off_fun(y))%2 == 1:
+        if y - round_off_fun(y) >= 0:
+            N = round_off_fun(y) + 1
+        else:
+            N = round_off_fun(y) - 1
+    else:
+        N = round_off_fun(y)
+    print(N)
 # ---------------------------------------------- Netlists used in optimization --------------------------------------------
 
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
