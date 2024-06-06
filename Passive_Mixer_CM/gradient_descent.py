@@ -118,7 +118,7 @@ class Circuit:
         flo_array = np.linspace(output_conditions['min_LO_freq'], output_conditions['max_LO_freq'],freq_points)
 
         # 1) simulate the s11 netlist and extract s11 information
-        cf.S11_netlist_edit(freq_array, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters,
+        cf.S11_netlist_edit(flo_array, output_conditions['RF_Bandwidth'], self.pre_iteration_circuit_parameters,
         self.simulation_parameters, "single_point"
         )
         cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['S11_netlist'])
@@ -131,7 +131,7 @@ class Circuit:
             i = i + 1
 
         # 2) running pss sweep followed by pac and pnoise simulation for the frequency points
-        cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], freq_array, output_conditions['RF_Bandwidth'],
+        cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], flo_array, output_conditions['RF_Bandwidth'],
         self.pre_iteration_circuit_parameters, self.simulation_parameters
         )
         # edit the pac statement inside this netlist
@@ -184,7 +184,7 @@ class Circuit:
                 'iip3':{}
             }
             # 1) simulate the s11 netlist and extract s11 information
-            cf.S11_netlist_edit(freq_array, output_conditions['RF_Bandwidth'], initial_circuit_parameters_dict[i],
+            cf.S11_netlist_edit(flo_array, output_conditions['RF_Bandwidth'], initial_circuit_parameters_dict[i],
             self.simulation_parameters, "single_point"
             )
             cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['S11_netlist'])
@@ -197,7 +197,7 @@ class Circuit:
                 j = j + 1
             
             # 2) running pss sweep followed by pac and pnoise simulation for the frequency points
-            cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], freq_array, output_conditions['RF_Bandwidth'],
+            cf.global_netlist_edit(self.simulation_parameters['netlists']['pss_netlist'], flo_array, output_conditions['RF_Bandwidth'],
             initial_circuit_parameters_dict[i], self.simulation_parameters
             )
             # edit the pac statement inside this netlist
