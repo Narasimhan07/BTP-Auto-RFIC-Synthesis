@@ -248,9 +248,13 @@ class Circuit:
                     change = change_limit*self.pre_iteration_circuit_parameters[parameter]
                 if(change < (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]):
                     change = (-1)*change_limit*self.pre_iteration_circuit_parameters[parameter]
-                if parameter == 'sw_mul':
-                    self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - int(change)
-
+                if parameter == 'switch_w':
+                    # first we increment or decrement the switch_w based on slope of the loss function
+                    self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
+                    # we round of this switch_w to get the updated value of sw_mul
+                    self.post_iteration_circuit_parameters['sw_mul'] = float(int(self.post_iteration_circuit_parameters[parameter]))
+                    # we get the updated sw_wn by dividing the switch_w by the updated sw_mul
+                    self.post_iteration_circuit_parameters['sw_wn'] = self.get_post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
                 else:
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
             # END for loop
@@ -305,8 +309,11 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
     i=0
     for param_name in optimization_parameters['optimizing_variables']:
 		# Calculating the increment value
-        if param_name == 'sw_mul':
-            increment = 1
+        # if parameter is switch_w then we increment the switch_w and then accordingly increase the wn of the sw_nmos, keeping the sw_mul const.
+        if param_name == 'switch_w':
+            increment_factor = delta_threshold
+            # The value by which parameter increases = increment_factor*parameter
+            increment = initial_circuit_parameters[param_name]*increment_factor
         else:
             increment_factor = delta_threshold
             # The value by which parameter increases = increment_factor*parameter
@@ -315,6 +322,10 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
 		# Incrementing the circuit parameter
         initial_circuit_parameters_dict[i] = initial_circuit_parameters.copy()
         initial_circuit_parameters_dict[i][param_name] = initial_circuit_parameters_dict[i][param_name] + increment
+        # below, we adjust the wn of nmos to get the incremented switch_w and keep the same number of sw_mul
+        if param_name == 'switch_w':
+            new_wn = initial_circuit_parameters_dict[i][param_name]/float(initial_circuit_parameters_dict[i]['sw_mul'])
+            initial_circuit_parameters_dict[i]['sw_wn'] = new_wn
         # if only the param_name is 'sw_mul' then we will just increment it by 1
         
         i+=1
@@ -340,8 +351,8 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
 		# Calculating Slope	
         circuit_parameters_slope[param_name]={}
         # recalling the increment value for the optimizing variable for calculating slope
-        if param_name == 'sw_mul':
-            increment = 1
+        if param_name == 'switch_w':
+            increment = initial_circuit_parameters[param_name]*increment_factor
         else:
             increment = initial_circuit_parameters[param_name]*increment_factor
 

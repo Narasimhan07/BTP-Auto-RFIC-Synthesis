@@ -48,15 +48,19 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_um_rf_w_l(CL, 5)
 
     # now we approximate the value of sw_fin and sw_mul that gives us the required Rsw
-    file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/switch_resistance.scs"
+    file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/switch_resistance.scs"
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
     f = 0.5*(f_max + f_min)
     temperature = 27
+    # the number of fingers is 1
+    nfin=1
+    # the width of the mosfet is 1u and total width = width*sw_mul
+    wn=1e-6
     # the multiplier need to be swept from min_mul to max_mul
-    min_mul = 10
-    max_mul = 30
-    parameter_to_edit = ['f','min_mul','max_mul','temperature']
-    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul,'temperature':temperature}
+    min_mul = 20
+    max_mul = 100
+    parameter_to_edit = ['f','min_mul','max_mul','temperature', 'nfin', 'wn']
+    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul, 'nfin':nfin, 'temperature':temperature, 'wn':wn}
 
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -81,8 +85,8 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
         # print(spice_new_content)
     with open(file_path, 'w') as file:
         file.writelines(scs_new_content)
-    # The switch_resistance.scs is simulated and ac.out is read to find the suitable value for sw_fin and sw_mul
-    spectre_command = "spectre switch_resistance.scs =log log.txt"
+    # The switch_resistance.scs is simulated and ac.out is read to find the suitable value for sw_mul
+    spectre_command = "spectre " + file_path + " =log log.txt"
     os.system(spectre_command)
     # Now we read the ac.out file to find out the nfin that closest approximates the Rsw value
     with open("/home/ee20b087/cadence_project/BTP_EE20B087/ac.out",'r') as f:
@@ -107,7 +111,10 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
                     start = False
                 else:
                     continue
+    # setting the multiplier and width of nmos
     hand_calculated_circuit_parameters['sw_mul'] = mul
-    # setting the multiplier and rho (ratio of multipliers of one inverter to the next)
-    
+    hand_calculated_circuit_parameters['sw_wn'] = wn
+    # total width of the switch = sw_mul*sw_wn
+    switch_w = mul*wn
+    hand_calculated_circuit_parameters['switch_w'] = switch_w
 # END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer

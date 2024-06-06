@@ -93,7 +93,7 @@ def get_optimization_parameters(VM_passive_mixer):
             'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['res_w', 'cap_w', 'sw_mul']
+        'optimizing_variables':['res_w', 'cap_w', 'switch_w']
 
     }
 # END of get_optimization_parameters()

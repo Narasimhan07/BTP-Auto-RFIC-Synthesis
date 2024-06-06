@@ -19,6 +19,21 @@ def ramp_func(x):
 def sqr_func(x):
     return pow(x,2)
 # ---------- END of SQR function ---------------------------
+# -------------------------------------- FUNCTION to ROUND-OFF to NEAREST INTEGER ------------------------------------------
+def round_off_fun(x):
+    if x>0:
+        y = x - int(x)
+        if y>=0.5:
+            return float(int(x) + 1)
+        else:
+            return float(int(x))
+    else:
+        y = x - int(x)
+        if y<=-0.5:
+            return float(int(x) - 1)
+        else:
+            return float(int(x))
+# -------- END of round_off_fun() --------------------------
 """
 ===========================================================================================================================
 ----------------------------------------- FUNCTIONS TO EDIT TSMC 65NM COMPONENTS ------------------------------------------
