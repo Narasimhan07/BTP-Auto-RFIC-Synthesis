@@ -1,12 +1,12 @@
 # ======================================= Hand calculations for Voltage mode Passive mixer ================================================
 # Circuit parameters for hand calculation:
 # Switch resistance: Rsw
-# (Rsw is decided by the number of fingers and multiplier of the switching NMOS RF)
+# (Rsw is decided by the multiplier of the switching NMOS RF)
 # Load capacitance: CL
 # Resistance parallel to load capacitance: RB
 # Port resistance: Rs
 # contents of input_circuit_specs(dictionary) - min_LO_freq, max_LO_freq, gain, S11, NF, power consumption
-# contents of initial circuit parameters(dictionary) - cap_w, res_w, switch NMOS{sw_fin, sw_mul}, switch_w, w_per_fin
+# contents of initial circuit parameters(dictionary) - cap_w, res_w, switch NMOS{sw_mul} - only 3 parameters wrt the mixer block
 
 import os
 import numpy as np
@@ -28,7 +28,7 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # Now using gamma, Rsh, Rsw and Rs we compute the RB value for Zin=50 (when Flo~Frf)
     RB = (1/gamma)*((Rsh*Rs - Rsw*Rsh)/(Rsw + Rsh - Rs))
     # assigning the computed value of res_w from RB
-    hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RB)
+    hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RB, 1)
 
     # Performing hand calculation for CL
     # we make use of f_min and f_max to compute the limits on CL
@@ -45,19 +45,18 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
         a = a-0.05
         CL = a*CL_min
     # Setting cap_w using the CL calculated value
-    hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_um_rf_w_l(CL)
+    hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_um_rf_w_l(CL, 5)
 
     # now we approximate the value of sw_fin and sw_mul that gives us the required Rsw
     file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/switch_resistance.scs"
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
     f = 0.5*(f_max + f_min)
-    # multiplier for the nmos switch
-    mul = 2
-    # the number of fingers need to be swept from min_fingers to max_fingers
-    min_fingers = 10
-    max_fingers = 50
-    parameter_to_edit = ['f','min_fingers','max_fingers','mul']
-    parameter_value = {'f':f,'min_fingers':min_fingers,'max_fingers':max_fingers,'mul':mul}
+    temperature = 27
+    # the multiplier need to be swept from min_mul to max_mul
+    min_mul = 10
+    max_mul = 30
+    parameter_to_edit = ['f','min_mul','max_mul','temperature']
+    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul,'temperature':temperature}
 
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -93,24 +92,22 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
             line = line.strip()
             words = line.split(' ')
         
-            if(words[0] == str(min_fingers)):
+            if(words[0] == str(min_mul)):
                 start = True
                 # we define a variable nmos_ron the stores the on resistance 
                 nmos_ron = float(words[-1])
-                nfin = float(words[0])
+                mul = float(words[0])
                 continue
             if(start):
                 if(abs(float(words[-1]) - Rsw)<abs(nmos_ron - Rsw)):
                     # if the absolute difference in nmos_ron and Rsw is lesser than the previous iteration, nmos_ron value is replaced
                     nmos_ron = float(words[-1])
-                    nfin = float(words[0])
-                if(words[0] == str(max_fingers)):
+                    mul = float(words[0])
+                if(words[0] == str(max_mul)):
                     start = False
                 else:
                     continue
-    hand_calculated_circuit_parameters['sw_fin'] = nfin
     hand_calculated_circuit_parameters['sw_mul'] = mul
-    w_per_fin = 1e-6
-    hand_calculated_circuit_parameters['w_per_fin'] = w_per_fin
-    effective_switch_width = nfin*w_per_fin
-    hand_calculated_circuit_parameters['switch_w'] = effective_switch_width
+    # setting the multiplier and rho (ratio of multipliers of one inverter to the next)
+    
+# END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer

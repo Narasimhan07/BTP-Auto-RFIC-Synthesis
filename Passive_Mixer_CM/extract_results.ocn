@@ -1,0 +1,15 @@
+openResults( "./psf" )
+results()
+input_RF_current = mag(harmonic(i("V0:p" ?result "pac") '(0)))
+output_voltage = mag(harmonic( v("VO_IP" ?result "pac") -1)-harmonic( v("VO_IN" ?result "pac") -1 ))
+gain = output_voltage/input_RF_current
+gain_db = db20(gain)
+awvSaveToCSV(gain_db "gain.csv")
+selectResult("pnoise")
+output_noise_power = pow(getData("out") 2)
+integ_NFactor_numerator = integ(output_noise_power 1K 10M)
+output_noise_power_divided_NFactor = pow(getData("out") 2)/pow(10 getData("NF")/10)
+integ_NFactor_denominator = integ(output_noise_power_divided_NFactor 1K 10M)
+integ_NF_db = 10*log10(integ_NFactor_numerator/integ_NFactor_denominator)
+awvSaveToCSV(integ_NF_db "NF.csv")
+exit

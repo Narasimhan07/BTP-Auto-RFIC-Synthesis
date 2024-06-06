@@ -43,6 +43,7 @@ def full_opt(cir, optimization_parameters, output_conditions):
         cir.run_circuit(output_conditions)
         # The above will run the circuit and set the simulated output parameters
         simulated_output_parameters_iter[i] = cir.get_simulated_output_parameters()
+        print(simulated_output_parameters_iter[i])
         # after obtaining simulated output parameters, loss function is calculated
         loss_iter[i] = cir.calc_loss(loss_weights, output_conditions)
         # printing loss for each iteration here
@@ -59,7 +60,7 @@ def full_opt(cir, optimization_parameters, output_conditions):
         post_iteration_circuit_parameters_iter[i] = cir.get_post_iteration_circuit_parameters()
 
         # cf.print_post_iteration(loss_iter, post_iteration_circuit_parameters_iter, i, 2)
-        cf.write_opt_results(loss_iter[i],post_iteration_circuit_parameters_iter[i], alpha, i)
+        cf.write_opt_results(loss_iter[i],post_iteration_circuit_parameters_iter[i], simulated_output_parameters_iter[i], alpha, i)
         # checks for stop before max_iterations
         flag_loss = gd.check_stop_loss(loss_iter, i, consec_iter)
         flag_apha = gd.check_stop_alpha(alpha, i, alpha_min)

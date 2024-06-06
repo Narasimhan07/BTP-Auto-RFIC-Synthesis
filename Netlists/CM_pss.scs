@@ -1,18 +1,18 @@
-// Generated for: spectre
-// Generated on: Jun  5 13:24:19 2024
 // Design library name: Narasimhan
 // Design cell name: Mixer_SB_CM_25D_TB_tsmc
 // Design view name: schematic
 simulator lang=spectre
 global 0
+parameters cap_w=10
+parameters res_w=75
+parameters gm=20m
+parameters RN=250
 parameters G=100
-parameters sw_mul=60
-parameters res_w=100
-parameters cap_w=20
+parameters sw_mul=75
 parameters flo=500M
 parameters flo_start=100M
 parameters flo_stop=1G
-parameters Bandwidth=10M 
+parameters Bandwidth=10M
 parameters temperature=27
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib
 
@@ -58,13 +58,15 @@ ends current_mode_25D_mixer_tsmc
 // View name: schematic
 I0 (VO_IN VO_IP LO_0 LO_180 net06) current_mode_25D_mixer_tsmc
 I1 (VO_QN VO_QP LO_90 LO_270 net06) current_mode_25D_mixer_tsmc
-PORT0 (net06 0) port r=50 type=dc
 PORT6 (net026 net025) port r=50 type=dc
 PORT5 (net027 net028) port r=50 type=dc
+PORT0 (net05 0) port r=50 type=dc pacmag=1
+R5 (net046 0) resistor r=RN
 R3 (net16 0) resistor r=50
 R2 (net10 0) resistor r=50
 R1 (net17 0) resistor r=50
 R0 (net11 0) resistor r=50
+R4 (net05 0) resistor r=50
 PORT4 (net16 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \
         period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
         width=0.25*(1/flo) fundname="LO_270"
@@ -85,6 +87,8 @@ E0 (LO_0 0 net11 0) vcvs gain=1.0
 E1 (LO_180 0 net10 0) vcvs gain=1.0
 E3 (LO_270 0 net16 0) vcvs gain=1.0
 E2 (LO_90 0 net17 0) vcvs gain=1.0
+G0 (net046 0 net05 0) vccs gm=gm
+V0 (net046 net06) vsource dc=0 type=dc
 simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
     iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 \
     maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \
@@ -93,9 +97,12 @@ simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
 sweeppss  sweep  param=flo  start=flo_start  stop=flo_stop  lin=2  {
   pss_test  pss  fund=flo  harms=50  errpreset=conservative  restart=yes
 +    annotate=status
-// PSP STATEMENTS
-  psp_test  psp  sweeptype=absolute  start=flo  portharmsvec=[1]
-+      ports=[PORT0]  annotate=status
+// PAC STATEMENTS
+  pac_test  pac  sweeptype=absolute  start=flo+Bandwidth  maxsideband=10
++      annotate=status
+  pnoise_test  (  VO_IP  VO_IN  )  pnoise  sweeptype=absolute
++         start=1K  stop=Bandwidth  lin=100  maxsideband=10  iprobe=PORT0
++         refsideband=-1  noiseout=[usb]  annotate=status
 }
 
 modelParameter info what=models where=rawfile
@@ -104,4 +111,5 @@ outputParameter info what=output where=rawfile
 designParamVals info what=parameters where=rawfile
 primitives info what=primitives where=rawfile
 subckts info what=subckts where=rawfile
+save V0:p 
 saveOptions options save=allpub

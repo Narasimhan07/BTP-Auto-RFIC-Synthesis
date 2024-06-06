@@ -22,10 +22,10 @@ def get_output_conditions(VM_passive_mixer):
         'min_LO_freq':100e6, 
         'max_LO_freq':1e9, 
         'RF_Bandwidth':10e6, 
-        'gain_db':5, 
+        'gain_db':6, 
         'S11_db':-10, 
         'NF_db':8,
-        'iip3':15 
+        'iip3':10 
     }
 # END of get_output_conditions()
 
@@ -33,6 +33,7 @@ def get_simulation_conditions(VM_passive_mixer):
     # defining the name of netlists files for simulating the output parameters
     # edit netlists in the lines below and uncomment the required lines
     VM_passive_mixer['simulation'] = {}
+    VM_passive_mixer['simulation']['Vdd'] = 1.2
     VM_passive_mixer['simulation']['temp'] = 27
     # below parameter is only applicable for frequency sweep analysis
     VM_passive_mixer['simulation']['freq_step'] = 0
@@ -40,21 +41,13 @@ def get_simulation_conditions(VM_passive_mixer):
     # choice of section can be tt_lib or any of the fast slow corners ("for process corner variations")
     VM_passive_mixer['simulation']['section'] = "tt_lib"
 
-    S11_netlist = "VM_S11.scs"
+    pss_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_pss.scs"
 
-    gain_netlist = "VM_gain.scs"
-    
-    NF_netlist = "VM_NF.scs"
-
-    iip3_netlist = "VM_iip3.scs"
+    iip3_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_iip3.scs"
 
     # relevant netlists for simulation in opt is stored in the below dict
     VM_passive_mixer['simulation']['netlists'] = {}
-    VM_passive_mixer['simulation']['netlists']['S11_netlist'] = S11_netlist
-   
-    VM_passive_mixer['simulation']['netlists']['gain_netlist'] = gain_netlist
-    
-    VM_passive_mixer['simulation']['netlists']['NF_netlist'] = NF_netlist
+    VM_passive_mixer['simulation']['netlists']['pss_netlist'] = pss_netlist
 
     VM_passive_mixer['simulation']['netlists']['iip3_netlist'] = iip3_netlist
 
@@ -64,23 +57,18 @@ def get_simulation_conditions(VM_passive_mixer):
         'tone 1':1e6,
         'tone 2':1.1e6,
         'prf':-10,
-        'prf_min':-30,
-        'prf_max':-5,
-        'prf_step':0.5,
+        'prf_min':-40,
+        'prf_max':-10,
+        'prf_step':1,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_iip3_post_optimization.ocn"
         }
     }
  
-    # each simulation result is stored in a .out file
-    VM_passive_mixer['simulation']['S11'] = {}
-    VM_passive_mixer['simulation']['S11']['.out_file_path'] = "sp_single_pt.out"
-    # for gain key in the dictionary contains the ocean script file path
-    VM_passive_mixer['simulation']['gain'] = {}
-    VM_passive_mixer['simulation']['gain']['ocean_script'] = "extract_single_point_gain.ocn"
-    VM_passive_mixer['simulation']['NF'] = {}
-    VM_passive_mixer['simulation']['NF']['ocean_script'] = "extract_NF.ocn"
+    # each simulation result is stored in csv files and we extract them using an ocean script
+    VM_passive_mixer['simulation']['extract_results'] = {}
+    VM_passive_mixer['simulation']['extract_results']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_results.ocn"
 
 # END of get_simulation_conditions()
 
@@ -92,20 +80,20 @@ def get_optimization_parameters(VM_passive_mixer):
             'NF_db':{},
             'iip3':{}
         },
-        'max_iteration':50,
+        'max_iteration':200,
         'iter_number':0,
         'delta_threshold':0.001,
-        'consec_iter':3,
+        'consec_iter':20,
         # learning rates
         'alpha':{
             'alpha_min':-1,
-            'start':0.1,
+            'start':0.01,
             'end':0.001,
             'alpha_mult':1,
-            'type':'linear' # type can be linear or log (nothing signifies default of constant alpha)
+            'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['res_w', 'cap_w', 'switch_w']
+        'optimizing_variables':['res_w', 'cap_w', 'sw_mul']
 
     }
 # END of get_optimization_parameters()
@@ -126,22 +114,25 @@ def get_post_optimization_simulation_parameters(VM_passive_mixer):
     VM_passive_mixer['post_optimization']['temp_analysis'] = {}
     VM_passive_mixer['post_optimization']['process_corners'] = {}
     # defining netlists for all simulations
-    S11_netlist = "VM_S11.scs"
+    pss_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_pss.scs"
 
-    gain_netlist = "VM_gain.scs"
-    
-    NF_netlist = "VM_NF.scs"
+    S11_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_S11.scs"
 
-    iip3_netlist = "VM_iip3.scs"
+    gain_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_gain.scs"
+
+    NF_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_NF.scs"
+
+    iip3_netlist = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/VM_iip3.scs"
 
     # details for temperature analysis
     VM_passive_mixer['post_optimization']['temp_analysis']['temp'] = [27, 57]   # temperature list for analysis
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation'] = {}
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists'] = {}
     # setting up the netlists
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['S11_netlist'] = S11_netlist
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['gain_netlist'] = gain_netlist
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['NF_netlist'] = NF_netlist
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['pss_netlist'] = pss_netlist 
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['S11_netlist'] = S11_netlist 
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['gain_netlist'] = gain_netlist 
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['NF_netlist'] = NF_netlist 
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['netlists']['iip3_netlist'] = iip3_netlist
     # setting flo for which this analysis has to be done
     VM_passive_mixer['post_optimization']['temp_analysis']['flo'] = 500e6
@@ -158,23 +149,24 @@ def get_post_optimization_simulation_parameters(VM_passive_mixer):
         'prf_max':-5,
         'prf_step':0.5,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_iip3_post_optimization.ocn"
         }
     }
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['S11'] = {}
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['S11']['.out_file_path'] = "sp_sweep.out"
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
     # for gain key in the dictionary contains the ocean script file path
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain'] = {}
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain']['ocean_script'] = "extract_sweep_gain.ocn"
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_sweep_gain.ocn"
     VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF'] = {}
-    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF']['ocean_script'] = "extract_NF.ocn"
+    VM_passive_mixer['post_optimization']['temp_analysis']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_NF.ocn"
 
     # details for process corners analysis
     VM_passive_mixer['post_optimization']['process_corners']['section'] = ["ff_lib", "ss_lib"]   # list of sections needed to be analysed
     VM_passive_mixer['post_optimization']['process_corners']['simulation'] = {}
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists'] = {}
     # setting up the netlists
+    VM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['pss_netlist'] = pss_netlist
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['S11_netlist'] = S11_netlist
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['gain_netlist'] = gain_netlist
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['netlists']['NF_netlist'] = NF_netlist
@@ -190,27 +182,30 @@ def get_post_optimization_simulation_parameters(VM_passive_mixer):
         'tone 1':1e6,
         'tone 2':1.1e6,
         'prf':-10,
-        'prf_min':-40,
-        'prf_max':-10,
+        'prf_min':-30,
+        'prf_max':-5,
         'prf_step':0.5,
         'ocean_script':{
-            'write_ip3_slope_to_CSV_path':"write_ip3_slope_to_CSV.ocn",
-            'extract_iip3_post_optimization_path':"extract_iip3_post_optimization.ocn"
+            'write_ip3_slope_to_CSV_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/write_ip3_slope_to_CSV.ocn",
+            'extract_iip3_post_optimization_path':"/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_iip3_post_optimization.ocn"
         }
     }
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['S11'] = {}
-    VM_passive_mixer['post_optimization']['process_corners']['simulation']['S11']['.out_file_path'] = "sp_sweep.out"
+    VM_passive_mixer['post_optimization']['process_corners']['simulation']['S11']['.out_file_path'] = "/home/ee20b087/cadence_project/BTP_EE20B087/sp_sweep.out"
     # for gain key in the dictionary contains the ocean script file path
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['gain'] = {}
-    VM_passive_mixer['post_optimization']['process_corners']['simulation']['gain']['ocean_script'] = "extract_sweep_gain.ocn"
+    VM_passive_mixer['post_optimization']['process_corners']['simulation']['gain']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_sweep_gain.ocn"
     VM_passive_mixer['post_optimization']['process_corners']['simulation']['NF'] = {}
-    VM_passive_mixer['post_optimization']['process_corners']['simulation']['NF']['ocean_script'] = "extract_NF.ocn"
+    VM_passive_mixer['post_optimization']['process_corners']['simulation']['NF']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_NF.ocn"
 
 # END of get_post_optimization_simulation_parameters()
 
 def get_hand_calculated_circuit_parameters(VM_passive_mixer):
     VM_passive_mixer['hand_calculated_circuit_parameters'] = {}
-    vm_hc.hand_calculation(VM_passive_mixer['output_conditions'],VM_passive_mixer['hand_calculated_circuit_parameters'])
+    #vm_hc.hand_calculation(VM_passive_mixer['output_conditions'],VM_passive_mixer['hand_calculated_circuit_parameters'])
+    VM_passive_mixer['hand_calculated_circuit_parameters']['res_w'] = 30
+    VM_passive_mixer['hand_calculated_circuit_parameters']['cap_w'] = 20
+    VM_passive_mixer['hand_calculated_circuit_parameters']['sw_mul'] = 30
 # END of get_hand_calculated_circuit_parameters()
 
 def set_loss_weights(VM_passive_mixer):
@@ -223,9 +218,9 @@ def set_loss_weights(VM_passive_mixer):
     # setting a constant S11,gain weight for all flo frequencies
 
     S11_loss_weight = 0.1
-    gain_loss_weight = 0.05
-    NF_loss_weight = 0.125
-    iip3_loss_weight = 0.05
+    gain_loss_weight = 0.1
+    NF_loss_weight = 0.1
+    iip3_loss_weight = 0.1
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:
         VM_passive_mixer['optimization']['loss_weights']['S11_db'][flo] = S11_loss_weight
@@ -255,7 +250,7 @@ get_hand_calculated_circuit_parameters(VM_passive_mixer)
 # now that all the required settings are initialized, we set the loss weights
 set_loss_weights(VM_passive_mixer)
 # ---------------------- Creating class 'Circuit' object for VM_passive_mixer -------------------------
-cir = gd.Circuit(VM_passive_mixer['hand_calculated_circuit_parameters'], VM_passive_mixer['simulation'])
+cir = gd.Circuit(VM_passive_mixer['hand_calculated_circuit_parameters'], VM_passive_mixer['simulation'], "VM")
 # the circuit object named 'cir' is initialized with initial, pre_iteration_circuit_parameters = hand_calculated_circuit_parameters
 # and simulation_parameters = simulation dict of VM_passive_mixer
 # ----------------------------- calling the full optimization function --------------------------------
@@ -265,7 +260,7 @@ fo.full_opt(cir, VM_passive_mixer['optimization'], VM_passive_mixer['output_cond
 
 # ---------------------------------------- ANALYSIS FUNCTIONS -----------------------------------------
 # defining run variables, set them as True or False based on whether you want to run them or not
-run_freq_analysis = True
+run_freq_analysis = False
 run_temp_analysis = False
 run_process_corners = False
 # FREQUENCY ANALYSIS

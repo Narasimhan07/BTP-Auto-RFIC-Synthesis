@@ -1,17 +1,18 @@
 // Generated for: spectre 
-// Generated on: May 16 19:23:36 2024 
+// Generated on: Jun  4 13:32:49 2024 
 // Design library name: Passive_mixer_ee20b087 
 // Design cell name: Mixer_SB_VM_25D_TB_tsmc 
 // Design view name: schematic 
 simulator lang=spectre 
 global 0 
-parameters cap_w=17.549410518 
+parameters cap_w=15.151273371321931 
 parameters flo=100000000.0 
-parameters Bandwidth=1000000.0 
-parameters res_w=35.1317291919 
-parameters sw_mul=2 
+parameters flo_start=100000000.0 
+parameters flo_stop=1000000000.0 
+parameters Bandwidth=10000000.0 
+parameters res_w=48.242088656416385 
+parameters sw_mul=30 
 parameters temperature=27 
-parameters freq_step=10K
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib 
  
 // Library name: Passive_mixer_ee20b087 
@@ -75,18 +76,27 @@ R3 (net07 0) resistor r=50
 R2 (net011 0) resistor r=50 
 R0 (net08 0) resistor r=50 
 R1 (net012 0) resistor r=50 
-PORT0 (net9 0) port r=50 type=dc pacmag=1 
 PORT5 (net022 net021) port r=50 type=dc 
+PORT0 (net9 0) port r=50 type=dc pacmag=1 
 simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \ 
 iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 \ 
 rforce=1 maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \ 
 sensfile="../psf/sens.output" checklimitdest=psf 
-// PSP STATEMENTS 
-pss_test pss fund=flo harms=50 errpreset=conservative 
+// ANALYSIS STATEMENTS 
+sweeppss  sweep  param=flo  start=flo_start  stop=flo_stop  lin=2  { 
+pss_test  pss  fund=flo  harms=50  errpreset=conservative  restart=yes 
++    annotate=status 
+// PAC STATEMENTS 
+pac_test pac sweeptype=absolute start=flo+Bandwidth maxsideband=10 
 + annotate=status 
-psp_test psp sweeptype=absolute start=flo+Bandwidth portharmsvec=[1] 
-+ ports=[PORT0] annotate=status file="sp_single_pt.out" 
-+ datatype=dbphase 
+pnoise_test  (  VO_IP  VO_IN  )  pnoise  sweeptype=absolute 
++         start=1K  stop=Bandwidth  lin=100  maxsideband=10  iprobe=PORT0 
++         refsideband=-1  noiseout=[usb]  annotate=status 
+// PSP STATEMENTS 
+psp_test psp sweeptype=absolute start=flo portharmsvec=[1] 
++ ports=[PORT0] annotate=status datatype=dbphase 
+} 
+ 
 modelParameter info what=models where=rawfile 
 element info what=inst where=rawfile 
 outputParameter info what=output where=rawfile 

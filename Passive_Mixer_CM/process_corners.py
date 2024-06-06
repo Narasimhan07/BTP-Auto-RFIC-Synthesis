@@ -32,14 +32,7 @@ def process_corners_analysis(cir, post_optimization_process_corners):
         cf.gain_netlist_edit(post_optimization_process_corners['flo'], post_optimization_process_corners['RF_Bandwidth'], 
             cir.post_optimization_circuit_parameters, post_optimization_process_corners['simulation'], "sweep"
         )
-        # after editing the netlist, run the sweep
-        cf.run_spectre_with_PSF_file(post_optimization_process_corners['simulation']['netlists']['gain_netlist'])
-        # the function to extract results for gain_sweep returns freq list and gain @ each freq list
-        freq_list_2, gain_db_list = cf.extract_gain(post_optimization_process_corners['simulation']['gain']['ocean_script'], "sweep")
-        # INSERT MATPLOTLIB FUNCTION TO PLOT gain
-        cf.plot_result(freq_list_2, gain_db_list, "frequency (Hz)", "gain (dB)",
-        "conversion gain of I arm at flo = " + str(post_optimization_process_corners['flo']) + " and corner = " + section, "semilogx"
-        )
+        # after editing the netlist, run the netlist after editing the NF netlist also
 
         # 3) running noise figure
         cf.integrated_NF_netlist_edit(
@@ -47,7 +40,15 @@ def process_corners_analysis(cir, post_optimization_process_corners):
             post_optimization_process_corners['simulation']
         )
         # after editing the netlist, run the sweep
-        cf.run_spectre_with_PSF_file(post_optimization_process_corners['simulation']['netlists']['NF_netlist'])
+        cf.run_spectre_with_PSF_file(post_optimization_process_corners['simulation']['netlists']['pss_netlist'])
+
+        # the function to extract results for gain_sweep returns freq list and gain @ each freq list
+        freq_list_2, gain_db_list = cf.extract_gain(post_optimization_process_corners['simulation']['gain']['ocean_script'], "sweep")
+        # INSERT MATPLOTLIB FUNCTION TO PLOT gain
+        cf.plot_result(freq_list_2, gain_db_list, "frequency (Hz)", "gain (dB)",
+        "conversion gain of I arm at flo = " + str(post_optimization_process_corners['flo']) + " and corner = " + section, "semilogx"
+        )
+
         # the function to extract results for integrated NF returns freq list and NF @ each freq list
         integ_NF, freq_list_3, NF_db_list = cf.extract_integrated_NF(post_optimization_process_corners['simulation']['NF']['ocean_script'], True)
         print("Integrated Noise figure at flo = ", post_optimization_process_corners['flo'], " and corner = ", section, " is = ", integ_NF)
