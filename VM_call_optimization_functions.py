@@ -93,7 +93,7 @@ def get_optimization_parameters(VM_passive_mixer):
             'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['res_w', 'cap_w', 'sw_mul']
+        'optimizing_variables':['res_w', 'cap_w', 'switch_w']
 
     }
 # END of get_optimization_parameters()
@@ -202,10 +202,10 @@ def get_post_optimization_simulation_parameters(VM_passive_mixer):
 
 def get_hand_calculated_circuit_parameters(VM_passive_mixer):
     VM_passive_mixer['hand_calculated_circuit_parameters'] = {}
-    #vm_hc.hand_calculation(VM_passive_mixer['output_conditions'],VM_passive_mixer['hand_calculated_circuit_parameters'])
-    VM_passive_mixer['hand_calculated_circuit_parameters']['res_w'] = 30
-    VM_passive_mixer['hand_calculated_circuit_parameters']['cap_w'] = 20
-    VM_passive_mixer['hand_calculated_circuit_parameters']['sw_mul'] = 30
+    vm_hc.hand_calculation(VM_passive_mixer['output_conditions'],VM_passive_mixer['hand_calculated_circuit_parameters'])
+    #VM_passive_mixer['hand_calculated_circuit_parameters']['res_w'] = 30
+    #VM_passive_mixer['hand_calculated_circuit_parameters']['cap_w'] = 20
+    #VM_passive_mixer['hand_calculated_circuit_parameters']['sw_mul'] = 30
 # END of get_hand_calculated_circuit_parameters()
 
 def set_loss_weights(VM_passive_mixer):

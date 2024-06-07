@@ -6,7 +6,7 @@ import copy
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-
+import math
 
 # ---------------------------------------------- RAMP FUNCTION for LOSS ---------------------------------------------------
 def ramp_func(x):
@@ -19,6 +19,21 @@ def ramp_func(x):
 def sqr_func(x):
     return pow(x,2)
 # ---------- END of SQR function ---------------------------
+# -------------------------------------- FUNCTION to ROUND-OFF to NEAREST INTEGER ------------------------------------------
+def round_off_fun(x):
+    if x>0:
+        y = x - int(x)
+        if y>=0.5:
+            return float(int(x) + 1)
+        else:
+            return float(int(x))
+    else:
+        y = x - int(x)
+        if y<=-0.5:
+            return float(int(x) - 1)
+        else:
+            return float(int(x))
+# -------- END of round_off_fun() --------------------------
 """
 ===========================================================================================================================
 ----------------------------------------- FUNCTIONS TO EDIT TSMC 65NM COMPONENTS ------------------------------------------
@@ -54,6 +69,18 @@ def set_mimcap_um_rf_w_l(CL, cap_count):
 ===========================================================================================================================
 -------------------------------------------- FUNCTIONS TO EDIT NETLIST FILE -----------------------------------------------
 """
+# ----------------------------------------------- Function to set buffer block --------------------------------------------
+def buffer_block(rho, load_cap):
+    # number of inverters = N
+    y = math.log((load_cap/4.17), rho)
+    if (round_off_fun(y))%2 == 1:
+        if y - round_off_fun(y) >= 0:
+            N = round_off_fun(y) + 1
+        else:
+            N = round_off_fun(y) - 1
+    else:
+        N = round_off_fun(y)
+    print(N)
 # ---------------------------------------------- Netlists used in optimization --------------------------------------------
 
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
