@@ -117,14 +117,31 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # total width of the switch = sw_mul*sw_wn
     switch_w = mul*wn
     hand_calculated_circuit_parameters['switch_w'] = switch_w
-    # # for determining the load capacitance presented by the switch, 
-    # # capacitance per unit um width is = 1 fF/um
-    # load_cap = switch_w
-    # # setting the starting value of rho = 2
-    # hand_calculated_circuit_parameters['rho'] = 2
-    # # adding the inverters details below
-    # # the variables related to the inverter chain are:
-    # # 1. the number of inverters = N
-    # # 2. the ratio of inverter size = rho
-    # # 3. for each inverter: wp, wn, mp, mn and wp_total = wp*mp, wn_total = wn*mn
-# END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer
+    # for determining the load capacitance presented by the switch, 
+    # capacitance per unit um width is = 1 fF/um
+    load_cap = switch_w*(1e-15/1e-6)
+    # setting the starting value of rho = 2
+    hand_calculated_circuit_parameters['rho'] = 2.0
+    # adding the inverters details below
+    # the variables related to the inverter chain are:
+    # 1. the number of inverters = N
+    # 2. the ratio of inverter size = rho
+    # 3. for each inverter: wp, wn, mp, mn and wp_total = wp*mp, wn_total = wn*mn
+    N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(hand_calculated_circuit_parameters['rho'], load_cap)
+    hand_calculated_circuit_parameters['N'] = N
+    i=0
+    while i < N:
+        str1 = "wp" + str(i) + "_total"
+        str2 = "wn" + str(i) + "_total"
+        str3 = "wp" + str(i) 
+        str4 = "wn" + str(i)
+        str5 = "mp" + str(i)
+        str6 = "mn" + str(i)
+        hand_calculated_circuit_parameters[str1] = wp_total[i]
+        hand_calculated_circuit_parameters[str2] = wn_total[i]
+        hand_calculated_circuit_parameters[str3] = wp[i]
+        hand_calculated_circuit_parameters[str4] = wn[i]
+        hand_calculated_circuit_parameters[str5] = mp[i]
+        hand_calculated_circuit_parameters[str6] = mn[i]
+        i = i + 1
+# END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer and buffer block variables

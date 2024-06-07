@@ -72,28 +72,62 @@ def set_mimcap_um_rf_w_l(CL, cap_count):
 # ----------------------------------------------- Function to set buffer block --------------------------------------------
 def buffer_block(rho, load_cap):
     # number of inverters = N
-    y = math.log((load_cap/4.17), rho)
-    if (round_off_fun(y))%2 == 1:
+    y = math.log((load_cap/4.17e-15), rho)
+    if (round_off_fun(y))%2 == 0:
         if y - round_off_fun(y) >= 0:
             N = round_off_fun(y) + 1
         else:
             N = round_off_fun(y) - 1
     else:
         N = round_off_fun(y)
-    print(N)
+    # the above N indicates the number of inverters after the first inverter (standard size)
+    N = N + 1
+    # initialising empty lists for storing width and multiplier information of inverters
+    wp_total = []
+    wn_total = []
+    wn = []
+    wp = []
+    mp = []
+    mn = [] 
+    i = 0
+    # using while loop to assign inverter width
+    while i < N:
+        if i == 0:
+            wp_total.append(3.17e-6)
+            wn_total.append(1e-6)
+        else:
+            wp_total_temp = wp_total[-1]*rho
+            wn_total_temp = wn_total[-1]*rho
+            wp_total.append(wp_total_temp)
+            wn_total.append(wn_total_temp)
+        mp_temp = float(int(wp_total[-1]*0.5*1e6))
+        mn_temp = float(int(wn_total[-1]*1e6))
+        wp_temp = wp_total[-1]/mp_temp
+        wn_temp = wn_total[-1]/mn_temp
+        mp.append(mp_temp)
+        mn.append(mn_temp)
+        wp.append(wp_temp)
+        wn.append(wn_temp)
+        i = i + 1
+    # END of while loop
+    return N, wp_total, wn_total, wp, wn, mp, mn
 # ---------------------------------------------- Netlists used in optimization --------------------------------------------
 
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
 def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    # adding the flo and bandwidth and temperature varables also to the parameters to edit in the NF netlist
+    N = parameters_to_edit['N']
+    parameters_flag = 0
+    buffer_block_flag = 0
+    write_buffer_block = 1
+    # adding the flo and bandwidth and temperature varables also to the parameters to edit in the netlist
     # Integrated NF is carried out from Fif = 1K to Fif = Bandwidth
     parameters_to_edit['flo'] = freq_array[0]
     parameters_to_edit['flo_start'] = freq_array[0]
     parameters_to_edit['flo_stop'] = freq_array[-1]
     parameters_to_edit['Bandwidth'] = RF_Bandwidth
     parameters_to_edit['temperature'] = simulation_parameters['temp']
-    parameters_to_edit['section'] = simulation_parameters['section']
+    #parameters_to_edit['section'] = simulation_parameters['section']
     file_path = netlist_path
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -104,27 +138,59 @@ def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_ci
             line = line.strip()
             words = line.split(' ')
             word1 = words[-1].split('=')[0]
-            if(words[0] == "parameters"):
-                for param in parameters_to_edit:
-                    if(word1 == param):
+            # adding all the circuit parameter variables and simulation parameter variables below
+            if(words[0] == "//" and words[1] == "PARAMETERS"):
+                parameters_flag = 1
+                scs_new_content.append(line + " \n")
+            elif(words[0] == "parameters"):
+                if parameters_flag == 1:
+                    for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])
-                        del(words[-1])
-                        words.append(set_parameter)
-                new_line = ' '.join(words)
-                # print(new_line)
-                scs_new_content.append(new_line + " \n")
+                        new_words = ["parameters", set_parameter]
+                        new_line = ' '.join(new_words)
+                        scs_new_content.append(new_line + " \n")
+                    parameters_flag = 0
+                else:
+                    continue
             # adding the section detail that is the only different keyword from parameters in netlist that has to be set as well
             elif(word1 == "section"):
-                set_section = "section=" + str(parameters_to_edit["section"])
+                set_section = "section=" + str(simulation_parameters["section"])
                 del(words[-1])
                 words.append(set_section)
                 new_line = ' '.join(words)
                 scs_new_content.append(new_line + " \n")
+            elif(words[0] == "subckt" and words[1] == "buffer_block"):
+                buffer_block_flag = 1
+                scs_new_content.append(line + " \n")
+            elif buffer_block_flag == 1:
+                if write_buffer_block == 1:
+                    i = N-1
+                    while i >= 0:
+                        if i == 0:
+                            new_words = ["I0", "(Vdd In w0)", "Inverter", "wn=wn0", "muln=mn0", "wp=wp0", "mulp=mp0"]
+                        elif i == N-1:
+                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " Out)", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+                        else:
+                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " w" + str(i) + ")", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+                        new_line = ' '.join(new_words)
+                        scs_new_content.append(new_line + " \n ")
+                        i = i - 1
+                    # END while loop to write inverter lines
+                    # setting write_buffer_block flag 0 since lines are written
+                    write_buffer_block = 0
+                else:
+                    # if the buffer block is written, don't write anything in new file till endckt is reached
+                    if(words[0] == "ends" and words[1] == "buffer_block"):
+                        buffer_block_flag = 0
+                        scs_new_content.append(line + " \n")
+                    else:
+                        continue
             else:
                 scs_new_content.append(line + " \n")
         # print(spice_new_content)
     with open(file_path, 'w') as file:
         file.writelines(scs_new_content)
+# END definition
 
 # ------------------------------------------ END of S11_netlist_edit() ------------------------------------------------
 
