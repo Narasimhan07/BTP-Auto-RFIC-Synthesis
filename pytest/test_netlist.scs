@@ -1,7 +1,7 @@
 // Generated for: spectre 
-// Generated on: Jun  4 13:32:49 2024 
+// Generated on: May 16 21:37:28 2024 
 // Design library name: Passive_mixer_ee20b087 
-// Design cell name: Mixer_SB_VM_25D_TB_tsmc_with_buffer 
+// Design cell name: Mixer_SB_VM_25D_TB_tsmc 
 // Design view name: schematic 
 simulator lang=spectre 
 global 0 
@@ -37,11 +37,15 @@ parameters mp3=2
 parameters wn3=1 
 parameters wn3_total=2 
 parameters mn3=2 
-parameters flo=100000000.0 
-parameters flo_start=100000000.0 
-parameters flo_stop=1000000000.0 
-parameters Bandwidth=10000000.0 
+parameters flo=500000000.0 
+parameters frf1=510000000.0 
+parameters frf2=510100000.0 
+parameters prf=-10 
+parameters prf_min=-40 
+parameters prf_max=-10 
+parameters prf_step=1 
 parameters temperature=50 
+parameters Vdd=1.2 
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=ff_lib 
  
 // Library name: Passive_mixer_ee20b087 
@@ -146,26 +150,18 @@ R2 (net011 0) resistor r=50
 R0 (net08 0) resistor r=50 
 R1 (net012 0) resistor r=50 
 PORT5 (net022 net021) port r=50 type=dc 
-PORT0 (net9 0) port r=50 type=dc pacmag=1 
+PORT0 (net9 0) port r=50 type=sine freq=frf1 dbm=prf freq2=frf2 dbm2=prf \ 
+fundname="frf1" fundname2="frf2" 
 simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \ 
 iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 \ 
 rforce=1 maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \ 
 sensfile="../psf/sens.output" checklimitdest=psf 
 // ANALYSIS STATEMENTS 
-sweeppss  sweep  param=flo  start=flo_start  stop=flo_stop  lin=2  { 
-pss_test  pss  fund=flo  harms=50  errpreset=conservative  restart=yes 
-+    annotate=status 
-// PAC STATEMENTS 
-pac_test pac sweeptype=absolute start=flo+Bandwidth maxsideband=10 
-+ annotate=status 
-pnoise_test  (  VO_IP  VO_IN  )  pnoise  sweeptype=absolute 
-+         start=1K  stop=Bandwidth  lin=100  maxsideband=10  iprobe=PORT0 
-+         refsideband=-1  noiseout=[usb]  annotate=status 
-// PSP STATEMENTS 
-psp_test psp sweeptype=absolute start=flo portharmsvec=[1] 
-+ ports=[PORT0] annotate=status datatype=dbphase 
-} 
+sweephb  sweep  param=prf  start=prf_min  stop=prf_max  step=prf_step  { 
+hb_test  hb  autotstab=yes  oversample=[1  1  1]  fundfreqs=[(flo)  (frf1) 
++   (frf2)]  maxharms=[30  3  3]  errpreset=conservative  annotate=status 
  
+} 
 modelParameter info what=models where=rawfile 
 element info what=inst where=rawfile 
 outputParameter info what=output where=rawfile 

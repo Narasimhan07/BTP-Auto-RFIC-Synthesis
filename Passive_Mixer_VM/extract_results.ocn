@@ -13,4 +13,6 @@ output_noise_power_divided_NFactor = pow(getData("out") 2)/pow(10 getData("NF")/
 integ_NFactor_denominator = integ(output_noise_power_divided_NFactor 1K 10M)
 integ_NF_db = 10*log10(integ_NFactor_numerator/integ_NFactor_denominator)
 awvSaveToCSV(integ_NF_db "NF.csv")
+idd = mag( harmonic( rms( i("V0:p" ?result "pss_fd") ) 0 ) )
+awvSaveToCSV(idd "idd.csv")
 exit

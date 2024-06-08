@@ -127,6 +127,7 @@ def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_ci
     parameters_to_edit['flo_stop'] = freq_array[-1]
     parameters_to_edit['Bandwidth'] = RF_Bandwidth
     parameters_to_edit['temperature'] = simulation_parameters['temp']
+    parameters_to_edit['Vdd'] = simulation_parameters['Vdd']
     #parameters_to_edit['section'] = simulation_parameters['section']
     file_path = netlist_path
     with open(file_path, 'r') as file:
@@ -340,6 +341,10 @@ def integrated_NF_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_paramet
 # -------------------------------------------------- iip3 netlist ------------------------------------------------------
 def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
+    N = parameters_to_edit['N']
+    parameters_flag = 0
+    buffer_block_flag = 0
+    write_buffer_block = 1
     # adding the flo, frf1, frf2, prf, prf range and step variables also to the parameters to edit in the iip3 netlist
     parameters_to_edit['flo'] = freq
     parameters_to_edit['frf1'] = freq + simulation_parameters['iip3']['tone 1']
@@ -349,7 +354,8 @@ def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_paramet
     parameters_to_edit['prf_max'] = simulation_parameters['iip3']['prf_max']
     parameters_to_edit['prf_step'] = simulation_parameters['iip3']['prf_step']
     parameters_to_edit['temperature'] = simulation_parameters['temp']
-    parameters_to_edit['section'] = simulation_parameters['section']
+    parameters_to_edit['Vdd'] = simulation_parameters['Vdd']
+    #parameters_to_edit['section'] = simulation_parameters['section']
     file_path = simulation_parameters['netlists']['iip3_netlist']
 
     with open(file_path, 'r') as file:
@@ -361,22 +367,53 @@ def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_paramet
             line = line.strip()
             words = line.split(' ')
             word1 = words[-1].split('=')[0]
-            if(words[0] == "parameters"):
-                for param in parameters_to_edit:
-                    if(word1 == param):
+            # adding all the circuit parameter variables and simulation parameter variables below
+            if(words[0] == "//" and words[1] == "PARAMETERS"):
+                parameters_flag = 1
+                scs_new_content.append(line + " \n")
+            elif(words[0] == "parameters"):
+                if parameters_flag == 1:
+                    for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])
-                        del(words[-1])
-                        words.append(set_parameter)
-                new_line = ' '.join(words)
-                # print(new_line)
-                scs_new_content.append(new_line + " \n")
+                        new_words = ["parameters", set_parameter]
+                        new_line = ' '.join(new_words)
+                        scs_new_content.append(new_line + " \n")
+                    parameters_flag = 0
+                else:
+                    continue
             # adding the section detail that is the only different keyword from parameters in netlist that has to be set as well
             elif(word1 == "section"):
-                set_section = "section=" + str(parameters_to_edit["section"])
+                set_section = "section=" + str(simulation_parameters["section"])
                 del(words[-1])
                 words.append(set_section)
                 new_line = ' '.join(words)
                 scs_new_content.append(new_line + " \n")
+            elif(words[0] == "subckt" and words[1] == "buffer_block"):
+                buffer_block_flag = 1
+                scs_new_content.append(line + " \n")
+            elif buffer_block_flag == 1:
+                if write_buffer_block == 1:
+                    i = N-1
+                    while i >= 0:
+                        if i == 0:
+                            new_words = ["I0", "(Vdd In w0)", "Inverter", "wn=wn0", "muln=mn0", "wp=wp0", "mulp=mp0"]
+                        elif i == N-1:
+                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " Out)", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+                        else:
+                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " w" + str(i) + ")", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+                        new_line = ' '.join(new_words)
+                        scs_new_content.append(new_line + " \n ")
+                        i = i - 1
+                    # END while loop to write inverter lines
+                    # setting write_buffer_block flag 0 since lines are written
+                    write_buffer_block = 0
+                else:
+                    # if the buffer block is written, don't write anything in new file till endckt is reached
+                    if(words[0] == "ends" and words[1] == "buffer_block"):
+                        buffer_block_flag = 0
+                        scs_new_content.append(line + " \n")
+                    else:
+                        continue
             else:
                 scs_new_content.append(line + " \n")
         # print(spice_new_content)
@@ -597,6 +634,9 @@ def extract_results(ocean_script):
     # NF results are stored in NF.csv
     CSV_file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/NF.csv"
     freq_list, NF_db_list = read_CSV(CSV_file_path)
+    # Idd results are stored in NF.csv
+    CSV_file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/idd.csv"
+    freq_list, idd_list = read_CSV(CSV_file_path)
     # in s11.csv alone all the data is stored in one single row in the format x,y
     # so we use different code to extract it alone
     freq_list = []
@@ -614,7 +654,7 @@ def extract_results(ocean_script):
             for i in range(0,len(row), 2):
                 freq_list.append(float(row[i]))
                 S11_db_list.append(float(row[i+1]))
-    return freq_list, gain_db_list, S11_db_list, NF_db_list
+    return freq_list, gain_db_list, S11_db_list, NF_db_list, idd_list
 
 """
 ===========================================================================================================================
@@ -642,7 +682,8 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, simulat
             "S11:", str(simulated_output_parameters_iter['S11_db']), 
             "gain:", str(simulated_output_parameters_iter['gain_db']), 
             "NF:", str(simulated_output_parameters_iter['NF_db']),
-            "iip3:", str(simulated_output_parameters_iter['iip3'])
+            "iip3:", str(simulated_output_parameters_iter['iip3']),
+            "Idd:", str(simulated_output_parameters_iter['Idd']),
             ]
         line = ' '.join(words)
         file_content.append(line + " \n")
@@ -650,7 +691,11 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, simulat
             "post iteration circuit parameters-->",
             "Resistance width:", str(post_iteration_circuit_parameters_iter['res_w']), 
             "Capacitance width:", str(post_iteration_circuit_parameters_iter['cap_w']), 
-            "sw_mul:", str(post_iteration_circuit_parameters_iter['sw_mul'])
+            "sw_mul:", str(post_iteration_circuit_parameters_iter['sw_mul']),
+            "sw_wn", str(post_iteration_circuit_parameters_iter['sw_wn']),
+            "switch width", str(post_iteration_circuit_parameters_iter['switch_w']),
+            "Number of inverters", str(post_iteration_circuit_parameters_iter['N']),
+            "rho", str(post_iteration_circuit_parameters_iter['rho']),
             ]
         line = ' '.join(words)
         file_content.append(line + " \n")
