@@ -254,7 +254,7 @@ class Circuit:
                     # we round of this switch_w to get the updated value of sw_mul
                     self.post_iteration_circuit_parameters['sw_mul'] = float(int(self.post_iteration_circuit_parameters[parameter]*1e6))
                     # we get the updated sw_wn by dividing the switch_w by the updated sw_mul
-                    self.post_iteration_circuit_parameters['sw_wn'] = self.get_post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
+                    self.post_iteration_circuit_parameters['sw_wn'] = (self.post_iteration_circuit_parameters[parameter])/(self.post_iteration_circuit_parameters['sw_mul'])
                 else:
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
             # END for loop
