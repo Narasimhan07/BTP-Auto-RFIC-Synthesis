@@ -5,6 +5,7 @@
 // Design view name: schematic 
 simulator lang=spectre 
 global 0 
+// PARAMETERS
 parameters cap_w=15.151273371321931 
 parameters flo=550000000.0 
 parameters frf1=551000000.0 
@@ -19,29 +20,29 @@ parameters sw_mul=30
 parameters temperature=27 
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib 
  
-// Library name: Passive_mixer_ee20b087 
-// Cell name: RC_tank 
-// View name: schematic 
-subckt RC_tank in 
-parameters _par0=10 _par1=10 
-R0 (in 0 0) rppolyl_rf l=_par0*1u w=2u m=1 mismatchflag=0 
-C4 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
-mismatchflag=0 
-C3 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
-mismatchflag=0 
-C2 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
-mismatchflag=0 
-C1 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
-mismatchflag=0 
-C0 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \ 
-mismatchflag=0 
-ends RC_tank 
+// Library name: Passive_mixer_ee20b087
+// Cell name: RC_tank
+// View name: schematic
+subckt RC_tank in
+parameters _par0=10 _par1=10
+    R0 (in 0 0) rppolyl_rf l=_par0*1u w=2u m=1 mismatchflag=0
+    C4 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C3 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C2 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C1 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+    C0 (in 0 0) mimcap_um_sin_rf lt=_par1*4u wt=_par1*4u m=1 mimflag=3 \
+        mismatchflag=0
+ends RC_tank
 // End of subcircuit definition.
- 
-// Library name: Passive_mixer_ee20b087 
-// Cell name: voltage_mode_SB_25D_tsmc 
-// View name: schematic 
-subckt voltage_mode_SB_25D_tsmc LO\+ LO\- VO_N VO_P V_RF 
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: voltage_mode_SB_25D_tsmc
+// View name: schematic
+subckt voltage_mode_SB_25D_tsmc LO\+ LO\- VO_N VO_P V_RF
     I0 (VO_P) RC_tank _par0=res_w _par1=cap_w
     I1 (VO_N) RC_tank _par0=res_w _par1=cap_w
     M0 (V_RF LO\+ VO_P 0) nmos_rf lr=60n wr=sw_wn nr=1 sa=450.0n sb=450.0n \
@@ -56,39 +57,75 @@ subckt voltage_mode_SB_25D_tsmc LO\+ LO\- VO_N VO_P V_RF
         scb=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(sw_wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(sw_wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(sw_wn*1.0))/1e-06)))+((1/(sw_wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(sw_wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(sw_wn*1.0))/1e-06))))/1) \
         scc=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(sw_wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(sw_wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(sw_wn*1.0))/1e-06)))+((1/(sw_wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(sw_wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(sw_wn*1.0))/1e-06))))/1) \
         m=sw_mul sigma=1
-ends voltage_mode_SB_25D_tsmc 
-// End of subcircuit definition. 
- 
-// Library name: Passive_mixer_ee20b087 
-// Cell name: Mixer_SB_VM_25D_TB_tsmc 
-// View name: schematic 
-E4 (net022 0 VO_IP 0) vcvs gain=1.0 
-E3 (\270D_OUT 0 net011 0) vcvs gain=1.0 
-E2 (\90D_OUT 0 net07 0) vcvs gain=1.0 
-E1 (\180D_OUT 0 net012 0) vcvs gain=1.0 
-E0 (\0D_OUT 0 net08 0) vcvs gain=1.0 
-E5 (net021 0 VO_IN 0) vcvs gain=1.0 
-I0 (\0D_OUT \180D_OUT VO_IN VO_IP net9) voltage_mode_SB_25D_tsmc 
-I1 (\90D_OUT \270D_OUT VO_QN VO_QP net9) voltage_mode_SB_25D_tsmc 
-PORT0 (net9 0) port r=50 type=sine freq=frf1 dbm=prf freq2=frf2 dbm2=prf \ 
-pacmag=1 fundname="frf1" fundname2="frf2" 
-PORT4 (net011 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \ 
-period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \ 
-width=0.25*(1/flo) fundname="LO_270" 
-PORT3 (net07 0) port r=50 type=pulse delay=0.25*(1/flo) val0=0 val1=1.2 \ 
-period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \ 
-width=0.25*(1/flo) fundname="LO_90" 
-PORT2 (net012 0) port r=50 type=pulse delay=0.5*(1/flo) val0=0 val1=1.2 \ 
-period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \ 
-width=0.25*(1/flo) fundname="LO_180" 
-PORT1 (net08 0) port r=50 type=pulse delay=0 val0=0 val1=1.2 period=1/flo \ 
-rise=0.001*(1/flo) fall=0.001*(1/flo) width=0.25*(1/flo) \ 
-fundname="LO_0" 
-R3 (net07 0) resistor r=50 
-R2 (net011 0) resistor r=50 
-R0 (net08 0) resistor r=50 
-R1 (net012 0) resistor r=50 
-PORT5 (net022 net021) port r=50 type=dc 
+ends voltage_mode_SB_25D_tsmc
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: Inverter
+// View name: schematic
+subckt Inverter VDD Vin Vout
+parameters wn=1u muln=1 wp=2u mulp=1
+    M0 (Vout Vin 0 0) nmos_rf lr=60n wr=wn nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(wn*1.0))*(1/1.37e-06-1/(1.37e-06+(wn*1.0))))+(((1e-06*1e-06)/(wn*1.0))*(1/1.37e-06-1/(1.37e-06+(wn*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(wn*1.0))/1e-06)))+((1/(wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(wn*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(wn*1.0))/1e-06)))+((1/(wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(wn*1.0))/1e-06))))/1) \
+        m=muln sigma=1
+    M1 (Vout Vin VDD VDD) pmos_rf lr=60n wr=wp nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(wp*1.0))*(1/2.77e-06-1/(2.77e-06+(wp*1.0))))+(((1e-06*1e-06)/(wp*1.0))*(1/2.77e-06-1/(2.77e-06+(wp*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wp*1.0))*((2.77e-06/10.0+1e-06/100.0)*exp(-10.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/10.0+1e-06/100.0)*exp(-10.0*(2.77e-06+(wp*1.0))/1e-06)))+((1/(wp*1.0))*((2.77e-06/10.0+1e-06/100.0)*exp(-10.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/10.0+1e-06/100.0)*exp(-10.0*(2.77e-06+(wp*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wp*1.0))*((2.77e-06/20.0+1e-06/400.0)*exp(-20.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/20.0+1e-06/400.0)*exp(-20.0*(2.77e-06+(wp*1.0))/1e-06)))+((1/(wp*1.0))*((2.77e-06/20.0+1e-06/400.0)*exp(-20.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/20.0+1e-06/400.0)*exp(-20.0*(2.77e-06+(wp*1.0))/1e-06))))/1) \
+        m=mulp sigma=1
+ends Inverter
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: buffer_block
+// View name: schematic
+subckt buffer_block In Out Vdd
+    I3 (Vdd w2 Out) Inverter wn=wn3 muln=mn3 wp=wp3 mulp=mp3
+    I2 (Vdd w1 w2) Inverter wn=wn2 muln=mn2 wp=wp2 mulp=mp2
+    I1 (Vdd w0 w1) Inverter wn=wn1 muln=mn1 wp=wp1 mulp=mp1
+    I0 (Vdd In w0) Inverter wn=wn0 muln=mn0 wp=wp0 mulp=mp0
+ends buffer_block
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: Mixer_SB_VM_25D_TB_tsmc_with_buffer
+// View name: schematic
+E4 (net022 0 VO_IP 0) vcvs gain=1.0
+E3 (\270D_OUT 0 net011 0) vcvs gain=1.0
+E2 (\90D_OUT 0 net07 0) vcvs gain=1.0
+E1 (\180D_OUT 0 net012 0) vcvs gain=1.0
+E0 (\0D_OUT 0 net08 0) vcvs gain=1.0
+E5 (net021 0 VO_IN 0) vcvs gain=1.0
+I0 (net016 net017 VO_IN VO_IP net9) voltage_mode_SB_25D_tsmc
+I1 (net028 net029 VO_QN VO_QP net9) voltage_mode_SB_25D_tsmc
+B3 (\270D_OUT net029 Vdd) buffer_block
+B2 (\90D_OUT net028 Vdd) buffer_block
+B0 (\0D_OUT net016 Vdd) buffer_block
+B1 (\180D_OUT net017 Vdd) buffer_block
+PORT4 (net011 0) port r=50 type=pulse delay=0.75*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_270"
+PORT3 (net07 0) port r=50 type=pulse delay=0.25*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_90"
+PORT2 (net012 0) port r=50 type=pulse delay=0.5*(1/flo) val0=0 val1=1.2 \
+        period=1/flo rise=0.001*(1/flo) fall=0.001*(1/flo) \
+        width=0.25*(1/flo) fundname="LO_180"
+PORT1 (net08 0) port r=50 type=pulse delay=0 val0=0 val1=1.2 period=1/flo \
+        rise=0.001*(1/flo) fall=0.001*(1/flo) width=0.25*(1/flo) \
+        fundname="LO_0"
+V0 (Vdd 0) vsource dc=Vdd type=dc
+R3 (net07 0) resistor r=50
+R2 (net011 0) resistor r=50
+R0 (net08 0) resistor r=50
+R1 (net012 0) resistor r=50
+PORT5 (net022 net021) port r=50 type=dc
+PORT0 (net9 0) port r=50 type=sine freq=frf1 dbm=prf freq2=frf2 dbm2=prf \
+        fundname="frf1" fundname2="frf2"
 simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \ 
 iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 \ 
 rforce=1 maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \ 

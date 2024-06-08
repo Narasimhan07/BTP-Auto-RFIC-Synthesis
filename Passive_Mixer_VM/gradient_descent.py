@@ -48,6 +48,7 @@ class Circuit:
         self.simulated_output_parameters['gain_db'] = {}
         self.simulated_output_parameters['NF_db'] = {}
         self.simulated_output_parameters['iip3'] = {}
+        self.simulated_output_parameters['Idd'] = {}
         # Copying the hand calculated values into the initial circuit parameters
         self.initial_circuit_parameters = copy.deepcopy(circuit_initialization_parameters)
 
@@ -68,18 +69,21 @@ class Circuit:
         gain = copy.deepcopy(self.simulated_output_parameters['gain_db'])
         NF = copy.deepcopy(self.simulated_output_parameters['NF_db'])
         iip3 = copy.deepcopy(self.simulated_output_parameters['iip3'])
+        Idd = copy.deepcopy(self.simulated_output_parameters['Idd'])
 
         # reference specification
         S11_ref = output_conditions['S11_db']
         gain_ref = output_conditions['gain_db']
         NF_ref = output_conditions['NF_db']
         iip3_ref = output_conditions['iip3']
+        # for Idd the reference is zero because we want to minimise current consumption
 
         # define Loss variables for each output simulated parameters as 0
         loss_S11 = 0
         loss_gain = 0
         loss_NF = 0
         loss_iip3 = 0
+        loss_Idd = 0
         
         for flo in S11:
             # defining two different loss functions based on the circuit type for loss_S11
@@ -91,9 +95,10 @@ class Circuit:
             loss_gain = loss_gain + loss_weights['gain_db'][flo]*cf.ramp_func(gain_ref - gain[flo])
             loss_NF = loss_NF + loss_weights['NF_db'][flo]*cf.ramp_func(NF[flo] - NF_ref)
             loss_iip3 = loss_iip3 + loss_weights['iip3'][flo]*cf.ramp_func(iip3_ref - iip3[flo])
+            loss_Idd = loss_Idd + loss_weights['Idd'][flo]*Idd[flo]
 
         # defining total loss as the sum of all losses
-        loss = loss_S11 + loss_gain + loss_NF + loss_iip3
+        loss = loss_S11 + loss_gain + loss_NF + loss_iip3 + loss_Idd
         
         # defining a loss_dict that returns the individual losses and total loss
         loss_dict = {
@@ -101,7 +106,8 @@ class Circuit:
             'loss_S11':loss_S11,
             'loss_gain':loss_gain,
             'loss_NF':loss_NF,
-            'loss_iip3':loss_iip3
+            'loss_iip3':loss_iip3,
+            'loss_Idd':loss_Idd
         }
         return loss_dict
     
@@ -128,7 +134,7 @@ class Circuit:
         # running spectre for pss sweep followed by pac, psp, pnoise
         cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
         # extracting the s11, noise and gain results
-        freq_list, gain_db_list, S11_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
+        freq_list, gain_db_list, S11_db_list, NF_db_list, idd_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
         i = 0
         for flo in freq_list:
             # 1) adding s11 results
@@ -137,6 +143,8 @@ class Circuit:
             self.simulated_output_parameters['gain_db'][flo] = gain_db_list[i]
             # 3) adding NF results
             self.simulated_output_parameters['NF_db'][flo] = NF_db_list[i]
+            # 4) adding idd results
+            self.simulated_output_parameters['Idd'][flo] = idd_list[i]
             i = i + 1
         for flo in flo_array:
             # 4) Adding iip3 results at LO = flo to the simulated output parameters dict
@@ -171,7 +179,8 @@ class Circuit:
                 'S11_db':{},
                 'gain_db':{},
                 'NF_db':{},
-                'iip3':{}
+                'iip3':{},
+                'Idd':{}
             }
             # first we set up the generic circuit parameters and global parameters for the pss_netlist
             # pss_netlist runs pac, pnoise and psp simulation
@@ -184,7 +193,7 @@ class Circuit:
             # running spectre for pss sweep followed by pac, psp, pnoise
             cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['pss_netlist'])
             # extracting the s11, noise and gain results
-            freq_list, gain_db_list, S11_db_list, NF_db_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
+            freq_list, gain_db_list, S11_db_list, NF_db_list, idd_list = cf.extract_results(self.simulation_parameters['extract_results']['ocean_script'])
             j = 0
             for flo in freq_list:
                 # 1) adding s11 results
@@ -193,6 +202,8 @@ class Circuit:
                 simulated_output_parameters_dict[i]['gain_db'][flo] = gain_db_list[j]
                 # 3) adding NF results
                 simulated_output_parameters_dict[i]['NF_db'][flo] = NF_db_list[j]
+                # 4) adding idd results
+                simulated_output_parameters_dict[i]['Idd'][flo] = idd_list[j]
                 j = j + 1
             for flo in flo_array:
                 # 4) Adding iip3 results at LO = flo to the simulated output parameters dict
@@ -254,7 +265,35 @@ class Circuit:
                     # we round of this switch_w to get the updated value of sw_mul
                     self.post_iteration_circuit_parameters['sw_mul'] = float(int(self.post_iteration_circuit_parameters[parameter]*1e6))
                     # we get the updated sw_wn by dividing the switch_w by the updated sw_mul
-                    self.post_iteration_circuit_parameters['sw_wn'] = (self.post_iteration_circuit_parameters[parameter])/(self.post_iteration_circuit_parameters['sw_mul'])
+                    self.post_iteration_circuit_parameters['sw_wn'] = self.post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
+                elif parameter == 'rho':
+                    # first we remove the keys related to buffer except rho in the post_iteration_optimisation_parameters
+                    for key in self.post_iteration_circuit_parameters:
+                        if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'rho':
+                            continue
+                        else:
+                            del self.post_iteration_circuit_parameters[key]
+                    # first we increment or decrement the rho value based on the slope of the loss function
+                    self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
+                    # finding the new values of the buffer block parameters based on rho
+                    load_cap = self.post_iteration_circuit_parameters['switch_w']*(1e-15/1e-6)
+                    N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(self.post_iteration_circuit_parameters[parameter], load_cap)
+                    self.post_iteration_circuit_parameters['N'] = N
+                    i=0
+                    while i < N:
+                        str1 = "wp" + str(i) + "_total"
+                        str2 = "wn" + str(i) + "_total"
+                        str3 = "wp" + str(i) 
+                        str4 = "wn" + str(i)
+                        str5 = "mp" + str(i)
+                        str6 = "mn" + str(i)
+                        self.post_iteration_circuit_parameters[str1] = wp_total[i]
+                        self.post_iteration_circuit_parameters[str2] = wn_total[i]
+                        self.post_iteration_circuit_parameters[str3] = wp[i]
+                        self.post_iteration_circuit_parameters[str4] = wn[i]
+                        self.post_iteration_circuit_parameters[str5] = mp[i]
+                        self.post_iteration_circuit_parameters[str6] = mn[i]
+                        i = i + 1
                 else:
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
             # END for loop
@@ -326,8 +365,26 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
         if param_name == 'switch_w':
             new_wn = initial_circuit_parameters_dict[i][param_name]/float(initial_circuit_parameters_dict[i]['sw_mul'])
             initial_circuit_parameters_dict[i]['sw_wn'] = new_wn
-        # if only the param_name is 'sw_mul' then we will just increment it by 1
-        
+        elif param_name == 'rho':
+            load_cap = initial_circuit_parameters_dict[i]['switch_w']*(1e-15/1e-6)
+            N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(initial_circuit_parameters_dict[i][param_name], load_cap)
+            self.post_iteration_circuit_parameters['N'] = N
+            j=0
+            while j < N:
+                str1 = "wp" + str(j) + "_total"
+                str2 = "wn" + str(j) + "_total"
+                str3 = "wp" + str(j) 
+                str4 = "wn" + str(j)
+                str5 = "mp" + str(j)
+                str6 = "mn" + str(j)
+                initial_circuit_parameters_dict[i][str1] = wp_total[j]
+                initial_circuit_parameters_dict[i][str2] = wn_total[j]
+                initial_circuit_parameters_dict[i][str3] = wp[j]
+                initial_circuit_parameters_dict[i][str4] = wn[j]
+                initial_circuit_parameters_dict[i][str5] = mp[j]
+                initial_circuit_parameters_dict[i][str6] = mn[j]
+                j = j + 1
+    
         i+=1
 
     # Each key (denoted by 'i') in initial_circuit_parameters_dict holds the circuit_parameters wherein one of the parameters is incremented

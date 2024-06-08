@@ -24,7 +24,7 @@ def get_output_conditions(VM_passive_mixer):
         'RF_Bandwidth':10e6, 
         'gain_db':6, 
         'S11_db':-10, 
-        'NF_db':8,
+        'NF_db':10,
         'iip3':10 
     }
 # END of get_output_conditions()
@@ -78,7 +78,8 @@ def get_optimization_parameters(VM_passive_mixer):
             'S11_db':{},
             'gain_db':{},
             'NF_db':{},
-            'iip3':{}
+            'iip3':{},
+            'Idd':{}
         },
         'max_iteration':200,
         'iter_number':0,
@@ -93,7 +94,7 @@ def get_optimization_parameters(VM_passive_mixer):
             'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['res_w', 'cap_w', 'switch_w']
+        'optimizing_variables':['res_w', 'cap_w', 'switch_w', 'rho']
 
     }
 # END of get_optimization_parameters()
@@ -220,13 +221,15 @@ def set_loss_weights(VM_passive_mixer):
     S11_loss_weight = 0.1
     gain_loss_weight = 0.1
     NF_loss_weight = 0.1
-    iip3_loss_weight = 0.1
+    iip3_loss_weight = 0.05
+    Idd_loss_weight = 0.1
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:
         VM_passive_mixer['optimization']['loss_weights']['S11_db'][flo] = S11_loss_weight
         VM_passive_mixer['optimization']['loss_weights']['gain_db'][flo] = gain_loss_weight
         VM_passive_mixer['optimization']['loss_weights']['NF_db'][flo] = NF_loss_weight
         VM_passive_mixer['optimization']['loss_weights']['iip3'][flo] = iip3_loss_weight
+        VM_passive_mixer['optimization']['loss_weights']['Idd'][flo] = Idd_loss_weight
     # END of for
 # END of set_loss_weights()
 """
