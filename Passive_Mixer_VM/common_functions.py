@@ -193,7 +193,7 @@ def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_ci
         file.writelines(scs_new_content)
 # END definition
 
-# ------------------------------------------ END of S11_netlist_edit() ------------------------------------------------
+# ----------------------------------------- END of global_netlist_edit() ----------------------------------------------
 
 # ------------------------------------------------ S11 netlist --------------------------------------------------------
 # newchange
@@ -634,7 +634,7 @@ def extract_results(ocean_script):
     # NF results are stored in NF.csv
     CSV_file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/NF.csv"
     freq_list, NF_db_list = read_CSV(CSV_file_path)
-    # Idd results are stored in NF.csv
+    # Idd results are stored in idd.csv
     CSV_file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/idd.csv"
     freq_list, idd_list = read_CSV(CSV_file_path)
     # in s11.csv alone all the data is stored in one single row in the format x,y
@@ -674,7 +674,7 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, simulat
         words = ["alpha (learning rate):", str(alpha)]
         line = ' '.join(words)
         file_content.append(line + " \n")
-        words = ["loss:", str(loss_iter['loss']), "loss_S11:", str(loss_iter['loss_S11']), "loss_gain:", str(loss_iter['loss_gain']), "loss_NF:", str(loss_iter['loss_NF']), "loss_iip3:", str(loss_iter['loss_iip3'])]
+        words = ["loss:", str(loss_iter['loss']), "loss_S11:", str(loss_iter['loss_S11']), "loss_gain:", str(loss_iter['loss_gain']), "loss_NF:", str(loss_iter['loss_NF']), "loss_iip3:", str(loss_iter['loss_iip3']), "loss_Idd:", str(loss_iter['loss_Idd'])]
         line = ' '.join(words)
         file_content.append(line + " \n")
         words = [

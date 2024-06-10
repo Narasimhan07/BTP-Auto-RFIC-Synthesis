@@ -5,6 +5,7 @@
 // Design view name: schematic
 simulator lang=spectre
 global 0
+// PARAMETERS
 parameters G=100
 parameters sw_mul=60
 parameters res_w=100
@@ -53,14 +54,45 @@ subckt current_mode_25D_mixer_tsmc IF_N IF_P LO\+ LO\- RF
 ends current_mode_25D_mixer_tsmc
 // End of subcircuit definition.
 
+// Library name: Passive_mixer_ee20b087
+// Cell name: Inverter
+// View name: schematic
+subckt Inverter VDD Vin Vout
+parameters wn=1u muln=1 wp=2u mulp=1
+    M0 (Vout Vin 0 0) nmos_rf lr=60n wr=wn nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(wn*1.0))*(1/1.37e-06-1/(1.37e-06+(wn*1.0))))+(((1e-06*1e-06)/(wn*1.0))*(1/1.37e-06-1/(1.37e-06+(wn*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(wn*1.0))/1e-06)))+((1/(wn*1.0))*((1.37e-06/10.0+1e-06/100.0)*exp(-10.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/10.0+1e-06/100.0)*exp(-10.0*(1.37e-06+(wn*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((8.7e-07+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(wn*1.0))/1e-06)))+((1/(wn*1.0))*((1.37e-06/20.0+1e-06/400.0)*exp(-20.0*1.37e-06/1e-06)-((1.37e-06+(wn*1.0))/20.0+1e-06/400.0)*exp(-20.0*(1.37e-06+(wn*1.0))/1e-06))))/1) \
+        m=muln sigma=1
+    M1 (Vout Vin VDD VDD) pmos_rf lr=60n wr=wp nr=1 sa=450.0n sb=450.0n \
+        sd=240.0n \
+        sca=((0+(((1e-06*1e-06)/6e-08)*(1/(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/6e-08)*(1/(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))-1/((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)))+(((1e-06*1e-06)/(wp*1.0))*(1/2.77e-06-1/(2.77e-06+(wp*1.0))))+(((1e-06*1e-06)/(wp*1.0))*(1/2.77e-06-1/(2.77e-06+(wp*1.0)))))/1) \
+        scb=((0+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/10.0+1e-06/100.0)*exp(-10.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/10.0+1e-06/100.0)*exp(-10.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wp*1.0))*((2.77e-06/10.0+1e-06/100.0)*exp(-10.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/10.0+1e-06/100.0)*exp(-10.0*(2.77e-06+(wp*1.0))/1e-06)))+((1/(wp*1.0))*((2.77e-06/10.0+1e-06/100.0)*exp(-10.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/10.0+1e-06/100.0)*exp(-10.0*(2.77e-06+(wp*1.0))/1e-06))))/1) \
+        scc=((0+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/6e-08)*(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/20.0+1e-06/400.0)*exp(-20.0*(2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))/1e-06)-(((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/20.0+1e-06/400.0)*exp(-20.0*((2.27e-06+4.5e-07+(1-1)*(6e-08+2.4e-07))+6e-08)/1e-06)))+((1/(wp*1.0))*((2.77e-06/20.0+1e-06/400.0)*exp(-20.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/20.0+1e-06/400.0)*exp(-20.0*(2.77e-06+(wp*1.0))/1e-06)))+((1/(wp*1.0))*((2.77e-06/20.0+1e-06/400.0)*exp(-20.0*2.77e-06/1e-06)-((2.77e-06+(wp*1.0))/20.0+1e-06/400.0)*exp(-20.0*(2.77e-06+(wp*1.0))/1e-06))))/1) \
+        m=mulp sigma=1
+ends Inverter
+// End of subcircuit definition.
+
+// Library name: Passive_mixer_ee20b087
+// Cell name: buffer_block
+// View name: schematic
+subckt buffer_block In Out Vdd
+    I3 (Vdd w2 Out) Inverter wn=wn3 muln=mn3 wp=wp3 mulp=mp3
+    I2 (Vdd w1 w2) Inverter wn=wn2 muln=mn2 wp=wp2 mulp=mp2
+    I1 (Vdd w0 w1) Inverter wn=wn1 muln=mn1 wp=wp1 mulp=mp1
+    I0 (Vdd In w0) Inverter wn=wn0 muln=mn0 wp=wp0 mulp=mp0
+ends buffer_block
+// End of subcircuit definition.
+
 // Library name: Narasimhan
 // Cell name: Mixer_SB_CM_25D_TB_tsmc
 // View name: schematic
-I0 (VO_IN VO_IP LO_0 LO_180 net06) current_mode_25D_mixer_tsmc
-I1 (VO_QN VO_QP LO_90 LO_270 net06) current_mode_25D_mixer_tsmc
-PORT0 (net06 0) port r=50 type=dc
+I0 (VO_IN VO_IP net044 net041 net06) current_mode_25D_mixer_tsmc
+I1 (VO_QN VO_QP net042 net043 net06) current_mode_25D_mixer_tsmc
 PORT6 (net026 net025) port r=50 type=dc
 PORT5 (net027 net028) port r=50 type=dc
+PORT0 (net06 0) port r=50 type=dc
 R3 (net16 0) resistor r=50
 R2 (net10 0) resistor r=50
 R1 (net17 0) resistor r=50
@@ -85,6 +117,11 @@ E0 (LO_0 0 net11 0) vcvs gain=1.0
 E1 (LO_180 0 net10 0) vcvs gain=1.0
 E3 (LO_270 0 net16 0) vcvs gain=1.0
 E2 (LO_90 0 net17 0) vcvs gain=1.0
+B3 (LO_270 net043 Vdd) buffer_block
+B1 (LO_90 net042 Vdd) buffer_block
+B2 (LO_180 net041 Vdd) buffer_block
+B0 (LO_0 net044 Vdd) buffer_block
+V0 (Vdd 0) vsource dc=Vdd type=dc
 simulatorOptions options psfversion="1.1.0" reltol=1e-3 vabstol=1e-6 \
     iabstol=1e-12 temp=temperature tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 \
     maxnotes=5 maxwarns=5 digits=5 cols=80 pivrel=1e-3 \
@@ -104,4 +141,5 @@ outputParameter info what=output where=rawfile
 designParamVals info what=parameters where=rawfile
 primitives info what=primitives where=rawfile
 subckts info what=subckts where=rawfile
+save V0:p
 saveOptions options save=allpub
