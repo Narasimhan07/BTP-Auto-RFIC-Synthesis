@@ -233,134 +233,136 @@
 # N, wp_total, wn_total, wp, wn, mp, mn = buffer_block(rho, load_cap)
 # print(N,"\n",wp_total,"\n",wp,"\n",mp,"\n",wn_total,"\n",wn,"\n",mn)
 # -----------------------------------------------------
-import copy
-def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_parameters):
-    parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    N = parameters_to_edit['N']
-    parameters_flag = 0
-    buffer_block_flag = 0
-    write_buffer_block = 1
-    # adding the flo, frf1, frf2, prf, prf range and step variables also to the parameters to edit in the iip3 netlist
-    parameters_to_edit['flo'] = freq
-    parameters_to_edit['frf1'] = freq + simulation_parameters['iip3']['tone 1']
-    parameters_to_edit['frf2'] = freq + simulation_parameters['iip3']['tone 2']
-    parameters_to_edit['prf'] = simulation_parameters['iip3']['prf']
-    parameters_to_edit['prf_min'] = simulation_parameters['iip3']['prf_min']
-    parameters_to_edit['prf_max'] = simulation_parameters['iip3']['prf_max']
-    parameters_to_edit['prf_step'] = simulation_parameters['iip3']['prf_step']
-    parameters_to_edit['temperature'] = simulation_parameters['temp']
-    parameters_to_edit['Vdd'] = simulation_parameters['Vdd']
-    #parameters_to_edit['section'] = simulation_parameters['section']
-    file_path = "/Users/sreyas/Documents/BTP_EE20B087/pytest/test_netlist.scs"
+# import copy
+# def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_parameters):
+#     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
+#     N = parameters_to_edit['N']
+#     parameters_flag = 0
+#     buffer_block_flag = 0
+#     write_buffer_block = 1
+#     # adding the flo, frf1, frf2, prf, prf range and step variables also to the parameters to edit in the iip3 netlist
+#     parameters_to_edit['flo'] = freq
+#     parameters_to_edit['frf1'] = freq + simulation_parameters['iip3']['tone 1']
+#     parameters_to_edit['frf2'] = freq + simulation_parameters['iip3']['tone 2']
+#     parameters_to_edit['prf'] = simulation_parameters['iip3']['prf']
+#     parameters_to_edit['prf_min'] = simulation_parameters['iip3']['prf_min']
+#     parameters_to_edit['prf_max'] = simulation_parameters['iip3']['prf_max']
+#     parameters_to_edit['prf_step'] = simulation_parameters['iip3']['prf_step']
+#     parameters_to_edit['temperature'] = simulation_parameters['temp']
+#     parameters_to_edit['Vdd'] = simulation_parameters['Vdd']
+#     #parameters_to_edit['section'] = simulation_parameters['section']
+#     file_path = "/Users/sreyas/Documents/BTP_EE20B087/pytest/test_netlist.scs"
 
-    with open(file_path, 'r') as file:
-        scs_content = file.readlines()
-        # print(scs_content)
-        new_line = ""
-        scs_new_content = list()
-        for line in scs_content:
-            line = line.strip()
-            words = line.split(' ')
-            word1 = words[-1].split('=')[0]
-            # adding all the circuit parameter variables and simulation parameter variables below
-            if(words[0] == "//" and words[1] == "PARAMETERS"):
-                parameters_flag = 1
-                scs_new_content.append(line + " \n")
-            elif(words[0] == "parameters"):
-                if parameters_flag == 1:
-                    for param in parameters_to_edit:
-                        set_parameter = param + "=" + str(parameters_to_edit[param])
-                        new_words = ["parameters", set_parameter]
-                        new_line = ' '.join(new_words)
-                        scs_new_content.append(new_line + " \n")
-                    parameters_flag = 0
-                else:
-                    continue
-            # adding the section detail that is the only different keyword from parameters in netlist that has to be set as well
-            elif(word1 == "section"):
-                set_section = "section=" + str(simulation_parameters["section"])
-                del(words[-1])
-                words.append(set_section)
-                new_line = ' '.join(words)
-                scs_new_content.append(new_line + " \n")
-            elif(words[0] == "subckt" and words[1] == "buffer_block"):
-                buffer_block_flag = 1
-                scs_new_content.append(line + " \n")
-            elif buffer_block_flag == 1:
-                if write_buffer_block == 1:
-                    i = N-1
-                    while i >= 0:
-                        if i == 0:
-                            new_words = ["I0", "(Vdd In w0)", "Inverter", "wn=wn0", "muln=mn0", "wp=wp0", "mulp=mp0"]
-                        elif i == N-1:
-                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " Out)", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
-                        else:
-                            new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " w" + str(i) + ")", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
-                        new_line = ' '.join(new_words)
-                        scs_new_content.append(new_line + " \n ")
-                        i = i - 1
-                    # END while loop to write inverter lines
-                    # setting write_buffer_block flag 0 since lines are written
-                    write_buffer_block = 0
-                else:
-                    # if the buffer block is written, don't write anything in new file till endckt is reached
-                    if(words[0] == "ends" and words[1] == "buffer_block"):
-                        buffer_block_flag = 0
-                        scs_new_content.append(line + " \n")
-                    else:
-                        continue
-            else:
-                scs_new_content.append(line + " \n")
-        # print(spice_new_content)
-    with open(file_path, 'w') as file:
-        file.writelines(scs_new_content)
+#     with open(file_path, 'r') as file:
+#         scs_content = file.readlines()
+#         # print(scs_content)
+#         new_line = ""
+#         scs_new_content = list()
+#         for line in scs_content:
+#             line = line.strip()
+#             words = line.split(' ')
+#             word1 = words[-1].split('=')[0]
+#             # adding all the circuit parameter variables and simulation parameter variables below
+#             if(words[0] == "//" and words[1] == "PARAMETERS"):
+#                 parameters_flag = 1
+#                 scs_new_content.append(line + " \n")
+#             elif(words[0] == "parameters"):
+#                 if parameters_flag == 1:
+#                     for param in parameters_to_edit:
+#                         set_parameter = param + "=" + str(parameters_to_edit[param])
+#                         new_words = ["parameters", set_parameter]
+#                         new_line = ' '.join(new_words)
+#                         scs_new_content.append(new_line + " \n")
+#                     parameters_flag = 0
+#                 else:
+#                     continue
+#             # adding the section detail that is the only different keyword from parameters in netlist that has to be set as well
+#             elif(word1 == "section"):
+#                 set_section = "section=" + str(simulation_parameters["section"])
+#                 del(words[-1])
+#                 words.append(set_section)
+#                 new_line = ' '.join(words)
+#                 scs_new_content.append(new_line + " \n")
+#             elif(words[0] == "subckt" and words[1] == "buffer_block"):
+#                 buffer_block_flag = 1
+#                 scs_new_content.append(line + " \n")
+#             elif buffer_block_flag == 1:
+#                 if write_buffer_block == 1:
+#                     i = N-1
+#                     while i >= 0:
+#                         if i == 0:
+#                             new_words = ["I0", "(Vdd In w0)", "Inverter", "wn=wn0", "muln=mn0", "wp=wp0", "mulp=mp0"]
+#                         elif i == N-1:
+#                             new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " Out)", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+#                         else:
+#                             new_words = ["I" + str(i), "(Vdd w" + str(i-1) + " w" + str(i) + ")", "Inverter", "wn=wn" + str(i), "muln=mn" + str(i), "wp=wp" + str(i), "mulp=mp" + str(i)]
+#                         new_line = ' '.join(new_words)
+#                         scs_new_content.append(new_line + " \n ")
+#                         i = i - 1
+#                     # END while loop to write inverter lines
+#                     # setting write_buffer_block flag 0 since lines are written
+#                     write_buffer_block = 0
+#                 else:
+#                     # if the buffer block is written, don't write anything in new file till endckt is reached
+#                     if(words[0] == "ends" and words[1] == "buffer_block"):
+#                         buffer_block_flag = 0
+#                         scs_new_content.append(line + " \n")
+#                     else:
+#                         continue
+#             else:
+#                 scs_new_content.append(line + " \n")
+#         # print(spice_new_content)
+#     with open(file_path, 'w') as file:
+#         file.writelines(scs_new_content)
 
-pre_iteration_circuit_parameters = {
-    'res_w':1,
-    'cap_w':1,
-    'sw_mul':1,
-    'switch_w':1,
-    'sw_wn':1e-6,
-    'rho':2,
-    'N':4,
-    'wp0':1,
-    'wp0_total':2,
-    'mp0':2,
-    'wn0':1,
-    'wn0_total':2,
-    'mn0':2,
-    'wp1':1,
-    'wp1_total':2,
-    'mp1':2,
-    'wn1':1,
-    'wn1_total':2,
-    'mn1':2,
-    'wp2':1,
-    'wp2_total':2,
-    'mp2':2,
-    'wn2':1,
-    'wn2_total':2,
-    'mn2':2,
-    'wp3':1,
-    'wp3_total':2,
-    'mp3':2,
-    'wn3':1,
-    'wn3_total':2,
-    'mn3':2,
+# pre_iteration_circuit_parameters = {
+#     'res_w':1,
+#     'cap_w':1,
+#     'sw_mul':1,
+#     'switch_w':1,
+#     'sw_wn':1e-6,
+#     'rho':2,
+#     'N':4,
+#     'wp0':1,
+#     'wp0_total':2,
+#     'mp0':2,
+#     'wn0':1,
+#     'wn0_total':2,
+#     'mn0':2,
+#     'wp1':1,
+#     'wp1_total':2,
+#     'mp1':2,
+#     'wn1':1,
+#     'wn1_total':2,
+#     'mn1':2,
+#     'wp2':1,
+#     'wp2_total':2,
+#     'mp2':2,
+#     'wn2':1,
+#     'wn2_total':2,
+#     'mn2':2,
+#     'wp3':1,
+#     'wp3_total':2,
+#     'mp3':2,
+#     'wn3':1,
+#     'wn3_total':2,
+#     'mn3':2,
 
-}
-simulation_parameters = {
-    'section':"ff_lib",
-    'temp':50,
-    'Vdd':1.2,
-    'iip3':{
-        'prf':-10,
-        'prf_min':-40,
-        'prf_max':-10,
-        'prf_step':1,
-        'tone 1':10e6,
-        'tone 2':10.1e6,
-    }
+# }
+# simulation_parameters = {
+#     'section':"ff_lib",
+#     'temp':50,
+#     'Vdd':1.2,
+#     'iip3':{
+#         'prf':-10,
+#         'prf_min':-40,
+#         'prf_max':-10,
+#         'prf_step':1,
+#         'tone 1':10e6,
+#         'tone 2':10.1e6,
+#     }
 
-}
-iip3_netlist_edit(500e6, pre_iteration_circuit_parameters, simulation_parameters)
+# }
+# iip3_netlist_edit(500e6, pre_iteration_circuit_parameters, simulation_parameters)
+N = 5.0
+print(type(N))

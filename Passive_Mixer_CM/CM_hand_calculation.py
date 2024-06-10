@@ -46,14 +46,18 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
     f = 0.5*(f_max + f_min)
     # multiplier for the nmos switch
-    fingers = 1
+    # the number of fingers is 1
+    nfin=1
+    # the width of the mosfet is 1u and total width = width*sw_mul
+    wn=1e-6
+    # the multiplier need to be swept from min_mul to max_mul
     # the number of fingers need to be swept from min_fingers to max_fingers
     # the switch resistance is approximated at some particular temperature
-    min_mul = 10
-    max_mul = 60
+    min_mul = 30
+    max_mul = 120
     temperature = 27
-    parameter_to_edit = ['f','min_mul','max_mul','fingers', 'temperature']
-    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul,'nfin':fingers, 'temperature':temperature}
+    parameter_to_edit = ['f','min_mul','max_mul','nfin', 'temperature', 'wn']
+    parameter_value = {'f':f,'min_mul':min_mul,'max_mul':max_mul,'nfin':nfin, 'temperature':temperature, 'wn':wn}
 
     with open(file_path, 'r') as file:
         scs_content = file.readlines()
@@ -104,4 +108,37 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
                     start = False
                 else:
                     continue
+    # setting the multiplier and width of nmos            
     hand_calculated_circuit_parameters['sw_mul'] = mul
+    hand_calculated_circuit_parameters['sw_wn'] = wn
+    # total width of the switch = sw_mul*sw_wn
+    switch_w = mul*wn
+    hand_calculated_circuit_parameters['switch_w'] = switch_w
+    # for determining the load capacitance presented by the switch, 
+    # capacitance per unit um width is = 1 fF/um
+    load_cap = switch_w*(1e-15/1e-6)
+    # setting the starting value of rho = 2
+    hand_calculated_circuit_parameters['rho'] = 2.0
+    # adding the inverters details below
+    # the variables related to the inverter chain are:
+    # 1. the number of inverters = N
+    # 2. the ratio of inverter size = rho
+    # 3. for each inverter: wp, wn, mp, mn and wp_total = wp*mp, wn_total = wn*mn
+    N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(hand_calculated_circuit_parameters['rho'], load_cap)
+    hand_calculated_circuit_parameters['N'] = N
+    i=0
+    while i < N:
+        str1 = "wp" + str(i) + "_total"
+        str2 = "wn" + str(i) + "_total"
+        str3 = "wp" + str(i) 
+        str4 = "wn" + str(i)
+        str5 = "mp" + str(i)
+        str6 = "mn" + str(i)
+        hand_calculated_circuit_parameters[str1] = wp_total[i]
+        hand_calculated_circuit_parameters[str2] = wn_total[i]
+        hand_calculated_circuit_parameters[str3] = wp[i]
+        hand_calculated_circuit_parameters[str4] = wn[i]
+        hand_calculated_circuit_parameters[str5] = mp[i]
+        hand_calculated_circuit_parameters[str6] = mn[i]
+        i = i + 1
+# END of hand_calculations for sw_mul, res_w and cap_w in VM Passive mixer and buffer block variables
