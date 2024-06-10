@@ -32,7 +32,7 @@ def get_output_conditions(CM_passive_mixer):
         # the gain is from the input of the VCCS to the differential output of the mixer
         'gain_db':60, 
         'S11_db':0, 
-        'NF_db':8,
+        'NF_db':10,
         'iip3':10
     }
 # END of get_output_conditions()
@@ -42,6 +42,7 @@ def get_simulation_conditions(CM_passive_mixer):
     # edit netlists in the lines below and uncomment the required lines
     CM_passive_mixer['simulation'] = {}
     CM_passive_mixer['simulation']['temp'] = 27
+    CM_passive_mixer['simulation']['Vdd'] = 1.2
     # below parameter is only applicable for frequency sweep analysis - in optimization S11 is swept
     CM_passive_mixer['simulation']['freq_step'] = 0
     CM_passive_mixer['simulation']['freq_points'] = 3
@@ -99,9 +100,10 @@ def get_optimization_parameters(CM_passive_mixer):
             'S11_db':{},
             'gain_db':{},
             'NF_db':{},
-            'iip3':{}
+            'iip3':{},
+            'Idd':{}
         },
-        'max_iteration':100,
+        'max_iteration':200,
         'iter_number':0,
         'delta_threshold':0.001,
         'consec_iter':20,
@@ -114,7 +116,7 @@ def get_optimization_parameters(CM_passive_mixer):
             'type':'' # type can be linear or log (nothing signifies default of constant alpha)
         },
 
-        'optimizing_variables':['res_w', 'cap_w', 'sw_mul']
+        'optimizing_variables':['res_w', 'cap_w', 'switch_w', 'rho']
 
     }
 # END of get_optimization_parameters()
@@ -239,12 +241,14 @@ def set_loss_weights(CM_passive_mixer):
     gain_loss_weight = 0.1
     NF_loss_weight = 0.1
     iip3_loss_weight = 0.1
+    Idd_loss_weight = 0.1
     # if weight changes with flo, then accordingly the S11_loss_weight/gain_loss_weight must be defined as an array/dict 
     for flo in flo_array:
         CM_passive_mixer['optimization']['loss_weights']['S11_db'][flo] = S11_loss_weight
         CM_passive_mixer['optimization']['loss_weights']['gain_db'][flo] = gain_loss_weight
         CM_passive_mixer['optimization']['loss_weights']['NF_db'][flo] = NF_loss_weight
         CM_passive_mixer['optimization']['loss_weights']['iip3'][flo] = iip3_loss_weight
+        CM_passive_mixer['optimization']['loss_weights']['Idd'][flo] = Idd_loss_weight
     # END of for
 # END of set_loss_weights()
 """
