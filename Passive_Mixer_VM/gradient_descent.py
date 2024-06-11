@@ -265,14 +265,17 @@ class Circuit:
                     # we round of this switch_w to get the updated value of sw_mul
                     self.post_iteration_circuit_parameters['sw_mul'] = float(int(self.post_iteration_circuit_parameters[parameter]*1e6))
                     # we get the updated sw_wn by dividing the switch_w by the updated sw_mul
-                    self.post_iteration_circuit_parameters['sw_wn'] = self.get_post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
+                    self.post_iteration_circuit_parameters['sw_wn'] = self.post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
                 elif parameter == 'rho':
                     # first we remove the keys related to buffer except rho in the post_iteration_optimisation_parameters
+                    remove_keys = []
                     for key in self.post_iteration_circuit_parameters:
                         if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'rho':
                             continue
                         else:
-                            del self.post_iteration_circuit_parameters[key]
+                            remove_keys.append(key)
+                    for key in remove_keys:
+                        del self.post_iteration_circuit_parameters[key]
                     # first we increment or decrement the rho value based on the slope of the loss function
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
                     # finding the new values of the buffer block parameters based on rho
@@ -368,7 +371,7 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
         elif param_name == 'rho':
             load_cap = initial_circuit_parameters_dict[i]['switch_w']*(1e-15/1e-6)
             N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(initial_circuit_parameters_dict[i][param_name], load_cap)
-            self.post_iteration_circuit_parameters['N'] = N
+            initial_circuit_parameters_dict[i]['N'] = N
             j=0
             while j < N:
                 str1 = "wp" + str(j) + "_total"

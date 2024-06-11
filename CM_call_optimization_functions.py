@@ -88,7 +88,7 @@ def get_simulation_conditions(CM_passive_mixer):
  
     # for simulations the dictionary contains the ocean script file path for extracting outputs
     CM_passive_mixer['simulation']['S11'] = {}
-    CM_passive_mixer['simulation']['S11']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/extract_s11.ocn"
+    CM_passive_mixer['simulation']['S11']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_CM/extract_s11.ocn"
     CM_passive_mixer['simulation']['extract_results'] = {}
     CM_passive_mixer['simulation']['extract_results']['ocean_script'] = "/home/ee20b087/cadence_project/BTP_EE20B087/Passive_Mixer_VM/extract_results.ocn"
 

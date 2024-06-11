@@ -31,6 +31,9 @@ parameters flo=100000000.0
 parameters flo_start=100000000.0 
 parameters flo_stop=1000000000.0 
 parameters Bandwidth=10000000.0 
+parameters res_w=50.785377608994885 
+parameters sw_wn=1.0088071220436986e-06 
+parameters sw_mul=97.0 
 parameters temperature=27 
 include "/cad/library/TSMC/65/lp/tsmcN65/../models/spectre/toplevel.scs" section=tt_lib 
  

@@ -116,7 +116,7 @@ def buffer_block(rho, load_cap):
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
 def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    N = parameters_to_edit['N']
+    N = int(parameters_to_edit['N'])
     parameters_flag = 0
     buffer_block_flag = 0
     write_buffer_block = 1
@@ -143,7 +143,7 @@ def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_ci
             if(words[0] == "//" and words[1] == "PARAMETERS"):
                 parameters_flag = 1
                 scs_new_content.append(line + " \n")
-            elif(words[0] == "parameters"):
+            elif(words[0] == "parameters" and len(words) == 2):
                 if parameters_flag == 1:
                     for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])
@@ -341,7 +341,7 @@ def integrated_NF_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_paramet
 # -------------------------------------------------- iip3 netlist ------------------------------------------------------
 def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    N = parameters_to_edit['N']
+    N = int(parameters_to_edit['N'])
     parameters_flag = 0
     buffer_block_flag = 0
     write_buffer_block = 1
@@ -371,7 +371,7 @@ def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_paramet
             if(words[0] == "//" and words[1] == "PARAMETERS"):
                 parameters_flag = 1
                 scs_new_content.append(line + " \n")
-            elif(words[0] == "parameters"):
+            elif(words[0] == "parameters" and len(words) == 2):
                 if parameters_flag == 1:
                     for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])
@@ -692,8 +692,8 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, simulat
             "Resistance width:", str(post_iteration_circuit_parameters_iter['res_w']), 
             "Capacitance width:", str(post_iteration_circuit_parameters_iter['cap_w']), 
             "sw_mul:", str(post_iteration_circuit_parameters_iter['sw_mul']),
-            "sw_wn", str(post_iteration_circuit_parameters_iter['sw_wn']),
-            "switch width", str(post_iteration_circuit_parameters_iter['switch_w']),
+            "switch width:", str(post_iteration_circuit_parameters_iter['switch_w']),
+            "width per nmos:", str(post_iteration_circuit_parameters_iter['sw_wn'])
             "Number of inverters", str(post_iteration_circuit_parameters_iter['N']),
             "rho", str(post_iteration_circuit_parameters_iter['rho']),
             ]
