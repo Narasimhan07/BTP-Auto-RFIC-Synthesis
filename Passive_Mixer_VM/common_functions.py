@@ -693,7 +693,7 @@ def write_opt_results(loss_iter, post_iteration_circuit_parameters_iter, simulat
             "Capacitance width:", str(post_iteration_circuit_parameters_iter['cap_w']), 
             "sw_mul:", str(post_iteration_circuit_parameters_iter['sw_mul']),
             "switch width:", str(post_iteration_circuit_parameters_iter['switch_w']),
-            "width per nmos:", str(post_iteration_circuit_parameters_iter['sw_wn'])
+            "width per nmos:", str(post_iteration_circuit_parameters_iter['sw_wn']),
             "Number of inverters", str(post_iteration_circuit_parameters_iter['N']),
             "rho", str(post_iteration_circuit_parameters_iter['rho']),
             ]

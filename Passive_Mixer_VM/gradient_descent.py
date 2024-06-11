@@ -148,15 +148,20 @@ class Circuit:
             i = i + 1
         for flo in flo_array:
             # 4) Adding iip3 results at LO = flo to the simulated output parameters dict
-            # Edit the iip3 netlist with the circuit parameters
-            cf.iip3_netlist_edit(
-                flo, self.pre_iteration_circuit_parameters, self.simulation_parameters
-            )
-            # simulate the spectre netlist for gain and the respective psf file with outputs
-            cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['iip3_netlist'])
+            if self.simulation_parameters['loss_iip3'] == True:
             
-            # iip3 computed at flo is stored in the dict in simulated output parameters using the key = flo
-            self.simulated_output_parameters['iip3'][flo] = cf.extract_iip3(self.simulation_parameters['iip3']['ocean_script'])
+            # Edit the iip3 netlist with the circuit parameters
+                cf.iip3_netlist_edit(
+                    flo, self.pre_iteration_circuit_parameters, self.simulation_parameters
+                )
+                # simulate the spectre netlist for gain and the respective psf file with outputs
+                cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['iip3_netlist'])
+                
+                # iip3 computed at flo is stored in the dict in simulated output parameters using the key = flo
+                self.simulated_output_parameters['iip3'][flo] = cf.extract_iip3(self.simulation_parameters['iip3']['ocean_script'])
+            else:
+                iip3_const = 5
+                self.simulated_output_parameters['iip3'][flo] = output_conditions['iip3'] + iip3_const
 
         # END for loop
 
@@ -207,15 +212,19 @@ class Circuit:
                 j = j + 1
             for flo in flo_array:
                 # 4) Adding iip3 results at LO = flo to the simulated output parameters dict
-                # Edit the iip3 netlist with the circuit parameters
-                cf.iip3_netlist_edit(
-                    flo, initial_circuit_parameters_dict[i], self.simulation_parameters
-                )
-                # simulate the spectre netlist for gain and the respective psf file with outputs
-                cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['iip3_netlist'])
-                
-                # iip3 computed at flo is stored in the dict in simulated output parameters using the key = flo
-                simulated_output_parameters_dict[i]['iip3'][flo] = cf.extract_iip3(self.simulation_parameters['iip3']['ocean_script'])
+                if self.simulation_parameters['loss_iip3'] == True:
+                    # Edit the iip3 netlist with the circuit parameters
+                    cf.iip3_netlist_edit(
+                        flo, initial_circuit_parameters_dict[i], self.simulation_parameters
+                    )
+                    # simulate the spectre netlist for gain and the respective psf file with outputs
+                    cf.run_spectre_with_PSF_file(self.simulation_parameters['netlists']['iip3_netlist'])
+                    
+                    # iip3 computed at flo is stored in the dict in simulated output parameters using the key = flo
+                    simulated_output_parameters_dict[i]['iip3'][flo] = cf.extract_iip3(self.simulation_parameters['iip3']['ocean_script'])
+                else:
+                    iip3_const = 5
+                    simulated_output_parameters_dict[i]['iip3'][flo] = output_conditions['iip3'] + iip3_const
             # END of obtaining simulated output parameters for one set of initial circuit parameters in initial_circuit_parameters_dict
 
         # END for loop

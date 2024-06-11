@@ -24,7 +24,7 @@ def get_output_conditions(VM_passive_mixer):
         'RF_Bandwidth':10e6, 
         'gain_db':6, 
         'S11_db':-10, 
-        'NF_db':10,
+        'NF_db':8,
         'iip3':10 
     }
 # END of get_output_conditions()
@@ -38,6 +38,7 @@ def get_simulation_conditions(VM_passive_mixer):
     # below parameter is only applicable for frequency sweep analysis
     VM_passive_mixer['simulation']['freq_step'] = 0
     VM_passive_mixer['simulation']['freq_points'] = 3
+    VM_passive_mixer['simulation']['loss_iip3'] = False
     # choice of section can be tt_lib or any of the fast slow corners ("for process corner variations")
     VM_passive_mixer['simulation']['section'] = "tt_lib"
 
