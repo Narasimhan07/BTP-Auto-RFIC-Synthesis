@@ -116,7 +116,7 @@ def buffer_block(rho, load_cap):
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
 def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    N = parameters_to_edit['N']
+    N = int(parameters_to_edit['N'])
     parameters_flag = 0
     buffer_block_flag = 0
     write_buffer_block = 1
@@ -143,7 +143,7 @@ def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_ci
             if(words[0] == "//" and words[1] == "PARAMETERS"):
                 parameters_flag = 1
                 scs_new_content.append(line + " \n")
-            elif(words[0] == "parameters"):
+            elif(words[0] == "parameters" and len(words) == 2):
                 if parameters_flag == 1:
                     for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])
@@ -341,7 +341,7 @@ def integrated_NF_netlist_edit(freq, RF_Bandwidth, pre_iteration_circuit_paramet
 # -------------------------------------------------- iip3 netlist ------------------------------------------------------
 def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)
-    N = parameters_to_edit['N']
+    N = int(parameters_to_edit['N'])
     parameters_flag = 0
     buffer_block_flag = 0
     write_buffer_block = 1
@@ -371,7 +371,7 @@ def iip3_netlist_edit(freq, pre_iteration_circuit_parameters, simulation_paramet
             if(words[0] == "//" and words[1] == "PARAMETERS"):
                 parameters_flag = 1
                 scs_new_content.append(line + " \n")
-            elif(words[0] == "parameters"):
+            elif(words[0] == "parameters" and len(words) == 2):
                 if parameters_flag == 1:
                     for param in parameters_to_edit:
                         set_parameter = param + "=" + str(parameters_to_edit[param])

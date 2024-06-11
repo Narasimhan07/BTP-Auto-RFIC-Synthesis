@@ -295,7 +295,7 @@ class Circuit:
                     # first we remove the keys related to buffer except rho in the post_iteration_optimisation_parameters
                     remove_keys = []
                     for key in self.post_iteration_circuit_parameters:
-                        if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'rho':
+                        if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'rho' or key == 'G' or key == 'RN' or key == 'gm':
                             continue
                         else:
                             remove_keys.append(key)
