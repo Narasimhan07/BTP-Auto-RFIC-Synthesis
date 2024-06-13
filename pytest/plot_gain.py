@@ -20,11 +20,11 @@ def read_CSV(CSV_file_path):
             y_values.append(float(row[1]))  # Convert to float
         # END for loop
     return x_values, y_values
-file_path_1 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/freq_vs_temp_gain/gain_temp_-40.csv"
-file_path_2 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/freq_vs_temp_gain/gain_temp_0.csv"
-file_path_3 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/freq_vs_temp_gain/gain_temp_40.csv"
-file_path_4 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/freq_vs_temp_gain/gain_temp_80.csv"
-file_path_5 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/freq_vs_temp_gain/gain_temp_120.csv"
+file_path_1 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/temp_gain_vs_freq/gain_temp_-40.csv"
+file_path_2 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/temp_gain_vs_freq/gain_temp_0.csv"
+file_path_3 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/temp_gain_vs_freq/gain_temp_40.csv"
+file_path_4 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/temp_gain_vs_freq/gain_temp_80.csv"
+file_path_5 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/temp_gain_vs_freq/gain_temp_120.csv"
 
 freq_minus_40 = []
 freq_0 = []
@@ -46,11 +46,11 @@ ax.semilogx(freq_minus_40, gain_minus_40, linewidth=1.0, linestyle='solid', colo
 ax.semilogx(freq_0, gain_0, linewidth=1.0, linestyle='solid', color='blue', label="$0^{\circ}$ C")
 ax.semilogx(freq_40, gain_40, linewidth=1.0, linestyle='solid', color='orange', label="$40^{\circ}$ C")
 ax.semilogx(freq_80, gain_80, linewidth=1.0, linestyle='solid', color='green', label="$80^{\circ}$ C")
-ax.semilogx(freq_120, gain_120, linewidth=1.0, linestyle='solid', color='magenta', label="$120^{\circ}$ C")
+ax.semilogx(freq_120, gain_120, linewidth=1.0, linestyle='solid', color='purple', label="$120^{\circ}$ C")
 ax.grid()
 ax.legend(loc=1)
-ax.set(xlim=(1e3, 10e6), ylim=(5.5,7.5), 
+ax.set(xlim=(1e3, 10e6), ylim=(6.5, 8), yticks=np.linspace(6.25, 8.5, 10), 
     xticks=np.array([1e3, 1e4, 1e5, 1e6, 1e7]), xlabel="Frequency (Hz)", ylabel="Gain (in dB)", 
-    title="VM Passive Mixer: Variation of Gain vs Temperature"
+    title="Voltage Mode Passive Mixer: Variation of Gain vs Temperature"
     )
 plt.show()

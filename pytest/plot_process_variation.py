@@ -24,34 +24,46 @@ file_path_1 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs
 file_path_2 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/gain_ff_lib.csv"
 file_path_3 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/gain_ss_lib.csv"
 file_path_4 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/s11_tt_lib.csv"
-file_path_5 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/gain_tt_lib.csv"
-file_path_6 = ""
+file_path_5 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/s11_ff_lib.csv"
+file_path_6 = "/Users/sreyas/Documents/BTP_EE20B087/pytest/process_gain_&_s11_vs_freq/s11_ss_lib.csv"
 
-freq_minus_40 = []
-freq_0 = []
-freq_40 = []
-freq_80 = []
-freq_120 = []
-gain_minus_40 = []
-gain_0 = []
-gain_40 = []
-gain_80 = []
-gain_120 = []
-freq_minus_40, gain_minus_40 = read_CSV(file_path_1)
-freq_0, gain_0 = read_CSV(file_path_2)
-freq_40, gain_40 = read_CSV(file_path_3)
-freq_80, gain_80 = read_CSV(file_path_4)
-freq_120, gain_120 = read_CSV(file_path_5)
+freq_gain_tt = []
+freq_gain_ss = []
+freq_gain_ff = []
+freq_s11_tt = []
+freq_s11_ss = []
+freq_s11_ff = []
+gain_tt = []
+gain_ss = []
+gain_ff = []
+s11_tt = []
+s11_ss = []
+s11_ff = []
+freq_gain_tt, gain_tt = read_CSV(file_path_1)
+freq_gain_ff, gain_ff = read_CSV(file_path_2)
+freq_gain_ss, gain_ss = read_CSV(file_path_3)
+freq_s11_tt, s11_tt = read_CSV(file_path_4)
+freq_s11_ff, s11_ff = read_CSV(file_path_5)
+freq_s11_ss, s11_ss = read_CSV(file_path_6)
 fig, ax = plt.subplots()
-ax.semilogx(freq_minus_40, gain_minus_40, linewidth=1.0, linestyle='solid', color='red', label="$-40^{\circ}$ C")
-ax.semilogx(freq_0, gain_0, linewidth=1.0, linestyle='solid', color='blue', label="$0^{\circ}$ C")
-ax.semilogx(freq_40, gain_40, linewidth=1.0, linestyle='solid', color='orange', label="$40^{\circ}$ C")
-ax.semilogx(freq_80, gain_80, linewidth=1.0, linestyle='solid', color='green', label="$80^{\circ}$ C")
-ax.semilogx(freq_120, gain_120, linewidth=1.0, linestyle='solid', color='magenta', label="$120^{\circ}$ C")
+ax.semilogx(freq_gain_tt, gain_tt, linewidth=1.0, linestyle='solid', color='blue', label="tt_lib")
+ax.semilogx(freq_gain_ss, gain_ss, linewidth=1.0, linestyle='solid', color='green', label="ss_lib")
+ax.semilogx(freq_gain_ff, gain_ff, linewidth=1.0, linestyle='solid', color='red', label="ff_lib")
 ax.grid()
-ax.legend(loc=1)
-ax.set(xlim=(1e3, 10e6), ylim=(5.5,7.5), 
+ax.legend(loc=0)
+ax.set(xlim=(1e3, 10e6), ylim=(6, 8), yticks=np.linspace(5.5, 8.5, 7),
     xticks=np.array([1e3, 1e4, 1e5, 1e6, 1e7]), xlabel="Frequency (Hz)", ylabel="Gain (in dB)", 
-    title="VM Passive Mixer: Variation of Gain vs Temperature"
+    title="Voltage Mode Passive Mixer: Variation of Gain vs Process Corners"
+    )
+plt.show()
+fig, ax = plt.subplots()
+ax.plot(freq_s11_tt, s11_tt, linewidth=1.0, linestyle='solid', color='blue', label="tt_lib")
+ax.plot(freq_s11_ss, s11_ss, linewidth=1.0, linestyle='solid', color='green', label="ss_lib")
+ax.plot(freq_s11_ff, s11_ff, linewidth=1.0, linestyle='solid', color='red', label="ff_lib")
+ax.grid()
+ax.legend(loc=0)
+ax.set(xlim=(540e6, 560e6), ylim=(-20,-5), yticks=np.linspace(-20, -5, 7), 
+    xticks=np.linspace(540e6, 560e6, 9), xlabel="Frequency (Hz)", ylabel="$S_{11}$ (in dB)", 
+    title="Voltage Mode Passive Mixer: Variation of $S_{11}$ vs Process Corners"
     )
 plt.show()

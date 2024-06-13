@@ -46,11 +46,11 @@ ax.plot(freq_minus_40, s11_minus_40, linewidth=1.0, linestyle='solid', color='re
 ax.plot(freq_0, s11_0, linewidth=1.0, linestyle='solid', color='blue', label="$0^{\circ}$ C")
 ax.plot(freq_40, s11_40, linewidth=1.0, linestyle='solid', color='orange', label="$40^{\circ}$ C")
 ax.plot(freq_80, s11_80, linewidth=1.0, linestyle='solid', color='green', label="$80^{\circ}$ C")
-ax.plot(freq_120, s11_120, linewidth=1.0, linestyle='solid', color='violet', label="$120^{\circ}$ C")
+ax.plot(freq_120, s11_120, linewidth=1.0, linestyle='solid', color='purple', label="$120^{\circ}$ C")
 ax.grid()
-ax.legend(loc=1)
-ax.set(xlim=(490e6, 510e6), ylim=(-22.5,-5), yticks=np.linspace(-22.5, -5, 8), 
-    xticks=np.linspace(490e6, 510e6, 9), xlabel="Frequency (Hz)", ylabel="$S_{11}$ (in dB)", 
-    title="VM Passive Mixer: Variation of $S_{11}$ vs Temperature"
+ax.legend(loc=0)
+ax.set(xlim=(540e6, 560e6), ylim=(-16,-7), yticks=np.linspace(-16, -7, 10), 
+    xticks=np.linspace(540e6, 560e6, 9), xlabel="Frequency (Hz)", ylabel="$S_{11}$ (in dB)", 
+    title="Voltage Mode Passive Mixer: Variation of $S_{11}$ vs Temperature"
     )
 plt.show()
