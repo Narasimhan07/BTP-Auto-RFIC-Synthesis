@@ -28,11 +28,11 @@ def get_output_conditions(CM_passive_mixer):
         #   RN = norton resistance (output resistance) of the LNA
         'RN':250,
         'G':100,
-        'gm':20e-3,
+        'gm':40e-3,
         # the gain is from the input of the VCCS to the differential output of the mixer
         'gain_db':60, 
         'S11_db':0, 
-        'NF_db':10,
+        'NF_db':8,
         'iip3':10
     }
 # END of get_output_conditions()
@@ -46,6 +46,7 @@ def get_simulation_conditions(CM_passive_mixer):
     # below parameter is only applicable for frequency sweep analysis - in optimization S11 is swept
     CM_passive_mixer['simulation']['freq_step'] = 0
     CM_passive_mixer['simulation']['freq_points'] = 3
+    CM_passive_mixer['simulation']['loss_iip3'] = False
     # choice of section can be tt_lib or any of the fast slow corners ("for process corner variations")
     CM_passive_mixer['simulation']['section'] = "tt_lib"
 
@@ -103,10 +104,10 @@ def get_optimization_parameters(CM_passive_mixer):
             'iip3':{},
             'Idd':{}
         },
-        'max_iteration':200,
+        'max_iteration':300,
         'iter_number':0,
         'delta_threshold':0.001,
-        'consec_iter':20,
+        'consec_iter':25,
         # learning rates
         'alpha':{
             'alpha_min':-1,
