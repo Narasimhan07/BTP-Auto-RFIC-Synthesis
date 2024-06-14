@@ -22,7 +22,7 @@ def get_output_conditions(VM_passive_mixer):
         'min_LO_freq':100e6, 
         'max_LO_freq':1e9, 
         'RF_Bandwidth':10e6, 
-        'gain_db':6, 
+        'gain_db':3, 
         'S11_db':-10, 
         'NF_db':8,
         'iip3':10 
@@ -82,7 +82,7 @@ def get_optimization_parameters(VM_passive_mixer):
             'iip3':{},
             'Idd':{}
         },
-        'max_iteration':200,
+        'max_iteration':300,
         'iter_number':0,
         'delta_threshold':0.001,
         'consec_iter':20,

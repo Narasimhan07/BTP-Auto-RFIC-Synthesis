@@ -252,7 +252,7 @@ def gain_netlist_edit(simulation_parameters, netlist_type):
     # netlist_type can be "single_point" or "sweep"
     # gain is carried out at frf = flo+Bandwidth for single point and from start=flo-Bandwidth to stop=flo+Bandwidth for "sweep"
     single_point = [
-        ["pac_test", "pac", "sweeptype=absolute", "start=flo+Bandwidth", "maxsideband=10"],
+        ["pac_test", "pac", "sweeptype=absolute", "start=flo+1K", "maxsideband=10"],
         ["+", "annotate=status"]
     ]
     sweep = [
