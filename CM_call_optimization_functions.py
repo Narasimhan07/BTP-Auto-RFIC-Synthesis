@@ -31,7 +31,7 @@ def get_output_conditions(CM_passive_mixer):
         'gm':40e-3,
         # the gain is from the input of the VCCS to the differential output of the mixer
         'gain_db':60, 
-        'S11_db':0, 
+        'S11_db':5, 
         'NF_db':8,
         'iip3':10
     }
