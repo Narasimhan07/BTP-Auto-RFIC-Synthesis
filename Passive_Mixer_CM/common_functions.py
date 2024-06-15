@@ -127,7 +127,7 @@ def buffer_block(rho, load_cap):
     return N, wp_total, wn_total, wp, wn, mp, mn
 # ---------------------------------------------- Netlists used in optimization --------------------------------------------
 def buffer_block_fixed_N(N, load_cap):
-    rho = pow(load_cap, 1/float(N))
+    rho = pow((load_cap/4.17e-15), 1/float((N-1)))
     # initialising empty lists for storing width and multiplier information of inverters
     wp_total = []
     wn_total = []
@@ -156,7 +156,7 @@ def buffer_block_fixed_N(N, load_cap):
         wn.append(wn_temp)
         i = i + 1
     # END of while loop
-    return N, wp_total, wn_total, wp, wn, mp, mn
+    return N, rho, wp_total, wn_total, wp, wn, mp, mn
 # ------------------------------------- updating global simulation parameters in netlist ----------------------------------
 def global_netlist_edit(netlist_path, freq_array, RF_Bandwidth, pre_iteration_circuit_parameters, simulation_parameters):
     parameters_to_edit = copy.deepcopy(pre_iteration_circuit_parameters)

@@ -57,6 +57,8 @@ class Circuit:
 
         # for the first iteration (iter #1) the pre_iteration_circuit_parameters are same as the hand calculated circuit parameters
         self.pre_iteration_circuit_parameters = copy.deepcopy(circuit_initialization_parameters)
+        # flag_Idd_loss is set to 1 when loss_Idd is the only contibutor to loss for the first time. After the first time, it is set to zero
+        self.flag_Idd_loss = 0
 
     # END OF __init__()
 
@@ -253,6 +255,10 @@ class Circuit:
         if change_loss_parameters == []:
             flag_zero_loss = 1
             return flag_zero_loss
+        elif change_loss_parameters == ['loss_Idd'] and self.flag_Idd_loss == 0:
+            self.post_iteration_circuit_parameters = self.check_best_N()
+            self.pre_iteration_circuit_parameters = self.get_post_iteration_circuit_parameters()
+            self.flag_Idd_loss = 1
         else:
             # now using the slope, we calculate the update of each circuit parameter
             for parameter in circuit_parameters_slope:
@@ -260,7 +266,11 @@ class Circuit:
                 for loss_name in change_loss_parameters:
                     change  = change + circuit_parameters_slope[parameter][loss_name]
                 # increment = slope*learning rate*(pre_iteration_circuit_parameter)^2
-                change = change*alpha*(self.pre_iteration_circuit_parameters[parameter]**2)
+                # if only contribution to loss is loss_Idd then increase learning rate to 5 times the learning rate used otherwise
+                if change_loss_parameters == ['loss_Idd']:
+                    change = change*5*alpha*(self.pre_iteration_circuit_parameters[parameter]**2)
+                else:
+                    change = change*alpha*(self.pre_iteration_circuit_parameters[parameter]**2)
                 # now we check if this change is more than 25% of the parameter value
                 # if YES, we limit the change to 20% only
                 change_limit = 0.5
@@ -288,7 +298,7 @@ class Circuit:
                     # first we increment or decrement the rho value based on the slope of the loss function
                     self.post_iteration_circuit_parameters[parameter] = self.post_iteration_circuit_parameters[parameter] - change
                     # finding the new values of the buffer block parameters based on rho
-                    load_cap = self.post_iteration_circuit_parameters['switch_w']*(1e-15/1e-6)
+                    load_cap = 2*self.post_iteration_circuit_parameters['switch_w']*(1e-15/1e-6)
                     N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(self.post_iteration_circuit_parameters[parameter], load_cap)
                     self.post_iteration_circuit_parameters['N'] = N
                     i=0
@@ -335,6 +345,98 @@ class Circuit:
         return copy.deepcopy(self.simulated_output_parameters)
     # END of get_simulated_output_parameter()
 
+# ------------------------------------------------------------------------------
+    # Function to minimise current loss when loss = loss_Idd
+    def check_best_N(self):
+        # N = number of inverters
+        # The best value of N is the value for which we can get minimum Idd consumption
+        # We find the best N by iterating through different N values around the current N value (N-2, N-2, N, N+2, N+4)
+        # first setting up the current circuit parameters and simulated ouput parameters
+        initial_circuit_parameters = self.get_post_iteration_circuit_parameters()
+        initial_simulated_output_parameters = self.get_simulated_output_parameters()
+        # saving the Idd values from the current iteration as Idd_total
+        Idd = initial_simulated_output_parameters['Idd'].copy()
+        Idd_total = 0
+        for flo in Idd:
+            Idd_total = Idd_total + Idd[flo]
+        # saving the current number of inverters as 'current_N'
+        current_N = int(initial_circuit_parameters['N'])
+        # setting the best value of N as the current_N by default
+        best_N = current_N
+        # Since it is a double balanced mixer, load cap = 2*switch_width
+        load_cap = 2*initial_circuit_parameters['switch_w']*(1e-15/1e-6)
+        N_array = []
+        for i in [current_N-4, current_N-2, current_N, current_N+2, current_N+4]:
+            if i > 0:
+                rho = pow((load_cap/4.17e-15), float(1/(i-1)))
+                if rho >= 1 and rho <= 4:
+                    N_array.append(i)
+        # Creating a dict to store different circuit parameters for different N values
+        initial_circuit_parameters_dict = {}
+        simulated_output_parameters_dict = {}
+        remove_keys = []
+        # when N changes, rho and the corresponding inverter circuit parameters will only change
+        for key in initial_circuit_parameters:
+            if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'G' or key == 'RN' or key == 'gm':
+                continue
+            else:
+                remove_keys.append(key)
+        for key in remove_keys:
+            del initial_circuit_parameters[key]
+        
+        i = 0
+        # assigning the circuit parameters for different N values and the respective rho & inverter widths
+        for N_value in N_array:
+            if N_value == current_N:
+                initial_circuit_parameters_dict[i] = self.get_post_iteration_circuit_parameters()
+            else:
+                initial_circuit_parameters_dict[i] = initial_circuit_parameters.copy()
+                N, rho, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block_fixed_N(N_value, load_cap)
+                initial_circuit_parameters_dict[i]['N'] = N
+                initial_circuit_parameters_dict[i]['rho'] = rho
+                j=0
+                while j < N:
+                    str1 = "wp" + str(j) + "_total"
+                    str2 = "wn" + str(j) + "_total"
+                    str3 = "wp" + str(j) 
+                    str4 = "wn" + str(j)
+                    str5 = "mp" + str(j)
+                    str6 = "mn" + str(j)
+                    initial_circuit_parameters_dict[i][str1] = wp_total[j]
+                    initial_circuit_parameters_dict[i][str2] = wn_total[j]
+                    initial_circuit_parameters_dict[i][str3] = wp[j]
+                    initial_circuit_parameters_dict[i][str4] = wn[j]
+                    initial_circuit_parameters_dict[i][str5] = mp[j]
+                    initial_circuit_parameters_dict[i][str6] = mn[j]
+                    j = j + 1
+            i+=1
+        # output conditions dict required for simulation using run_circuit_multiple()
+        output_conditions = {
+            'min_LO_freq':100e6, 
+            'max_LO_freq':1e9, 
+            'RF_Bandwidth':10e6, 
+            'gain_db':4, 
+            'S11_db':-15, 
+            'NF_db':7,
+            'iip3':10 
+        }
+        # simulating the netlist for different N values
+        simulated_output_parameters_dict = self.run_circuit_multiple(output_conditions, initial_circuit_parameters_dict)
+        # among the simulated values of N, we search for the smallest Idd_total and assign the updated circuit parameters as the parameters for that N
+        for j in simulated_output_parameters_dict:
+            Idd_total_temp = 0
+            Idd_temp = simulated_output_parameters_dict[j]['Idd'].copy()
+            for flo in Idd_temp:
+                Idd_total_temp = Idd_total_temp + Idd_temp[flo]
+            # If Idd_total_temp < Idd_total, then this value of N provides lesser power comsumption than current value
+            if Idd_total_temp < Idd_total:
+                Idd_total = Idd_total_temp
+                best_N = initial_circuit_parameters_dict[j]['N']
+        # assigning the best N and its correcponding circuit parameters for the update circuit parameters function
+        for j in initial_circuit_parameters_dict:
+            if initial_circuit_parameters_dict[j]['N'] ==  best_N:
+                return initial_circuit_parameters_dict[j].copy()
+    # END of check_best_N()        
 # --------------------------- END of class Circuit --------------------------------
 
 # ----------------------- Computing Loss function slope ---------------------------
@@ -378,7 +480,7 @@ def calc_loss_slope(cir,output_conditions,loss_dict,optimization_parameters):
             new_wn = initial_circuit_parameters_dict[i][param_name]/float(initial_circuit_parameters_dict[i]['sw_mul'])
             initial_circuit_parameters_dict[i]['sw_wn'] = new_wn
         elif param_name == 'rho':
-            load_cap = initial_circuit_parameters_dict[i]['switch_w']*(1e-15/1e-6)
+            load_cap = 2*initial_circuit_parameters_dict[i]['switch_w']*(1e-15/1e-6)
             N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block(initial_circuit_parameters_dict[i][param_name], load_cap)
             initial_circuit_parameters_dict[i]['N'] = N
             j=0

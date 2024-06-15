@@ -118,8 +118,8 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     switch_w = mul*wn
     hand_calculated_circuit_parameters['switch_w'] = switch_w
     # for determining the load capacitance presented by the switch, 
-    # capacitance per unit um width is = 1 fF/um
-    load_cap = switch_w*(1e-15/1e-6)
+    # capacitance per unit um width is = 1 fF/um and since it is double balanced, the load is 2 times gate cap of the switch
+    load_cap = 2*switch_w*(1e-15/1e-6)
     # setting the starting value of rho = 2
     hand_calculated_circuit_parameters['rho'] = 2.0
     # adding the inverters details below

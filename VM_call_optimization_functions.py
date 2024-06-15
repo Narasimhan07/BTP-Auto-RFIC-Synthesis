@@ -22,9 +22,9 @@ def get_output_conditions(VM_passive_mixer):
         'min_LO_freq':100e6, 
         'max_LO_freq':1e9, 
         'RF_Bandwidth':10e6, 
-        'gain_db':3, 
-        'S11_db':-10, 
-        'NF_db':8,
+        'gain_db':4, 
+        'S11_db':-15, 
+        'NF_db':7,
         'iip3':10 
     }
 # END of get_output_conditions()

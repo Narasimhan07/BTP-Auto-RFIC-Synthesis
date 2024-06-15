@@ -34,14 +34,12 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     RL = 3e3
     #hand_calculated_circuit_parameters['RL'] = RL
     #assigning the computed value of res_w from RL
-    #hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 5)
-    hand_calculated_circuit_parameters['res_w'] = 65.68168362819489
+    hand_calculated_circuit_parameters['res_w'] = cf.set_rppoly_rf_w(RL, 5)
     # Performing hand calculation for CL
     # setting CL to 10pF
     CL = 10e-12
     # hand_calculated_circuit_parameters['CL'] = CL
-    #hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_w_l(CL, 3)
-    hand_calculated_circuit_parameters['cap_w'] = 18.764109576516876
+    hand_calculated_circuit_parameters['cap_w'] = cf.set_mimcap_w_l(CL, 3)
     # now we approximate the value of sw_fin and sw_mul that gives us the required Rsw
     file_path = "/home/ee20b087/cadence_project/BTP_EE20B087/Netlists/switch_resistance.scs"
     # setting the frequency at which switch resistance is analysed as f = ( f_min + f_max )/2
@@ -50,7 +48,7 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
     # the number of fingers is 1
     nfin=1
     # the width of the mosfet is 1u and total width = width*sw_mul
-    wn=1.0018888859672751e-06
+    wn=1e-6
     # the multiplier need to be swept from min_mul to max_mul
     # the number of fingers need to be swept from min_fingers to max_fingers
     # the switch resistance is approximated at some particular temperature
@@ -110,7 +108,7 @@ def hand_calculation(output_conditions, hand_calculated_circuit_parameters):
                 else:
                     continue
     # setting the multiplier and width of nmos            
-    hand_calculated_circuit_parameters['sw_mul'] = 107
+    hand_calculated_circuit_parameters['sw_mul'] = mul
     hand_calculated_circuit_parameters['sw_wn'] = wn
     # total width of the switch = sw_mul*sw_wn
     switch_w = mul*wn
