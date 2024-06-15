@@ -57,6 +57,8 @@ class Circuit:
 
         # for the first iteration (iter #1) the pre_iteration_circuit_parameters are same as the hand calculated circuit parameters
         self.pre_iteration_circuit_parameters = copy.deepcopy(circuit_initialization_parameters)
+        # flag_Idd_loss is set to 1 when loss_Idd is the only contibutor to loss for the first time. After the first time, it is set to zero
+        self.flag_Idd_loss = 0
 
     # END OF __init__()
 
@@ -275,6 +277,9 @@ class Circuit:
         if change_loss_parameters == []:
             flag_zero_loss = 1
             return flag_zero_loss
+        elif change_loss_parameters == ['loss_Idd'] and self.flag_Idd_loss == 0:
+            self.post_iteration_circuit_parameters = self.check_best_N()
+            self.flag_Idd_loss = 1
         else:
             # now using the slope, we calculate the update of each circuit parameter
             for parameter in circuit_parameters_slope:
@@ -298,7 +303,7 @@ class Circuit:
                     # we round of this switch_w to get the updated value of sw_mul
                     self.post_iteration_circuit_parameters['sw_mul'] = float(int(self.post_iteration_circuit_parameters[parameter]*1e6))
                     # we get the updated sw_wn by dividing the switch_w by the updated sw_mul
-                    self.post_iteration_circuit_parameters['sw_wn'] = self.get_post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
+                    self.post_iteration_circuit_parameters['sw_wn'] = self.post_iteration_circuit_parameters[parameter]/self.post_iteration_circuit_parameters['sw_mul']
                 elif parameter == 'rho':
                     # first we remove the keys related to buffer except rho in the post_iteration_optimisation_parameters
                     remove_keys = []
@@ -360,7 +365,79 @@ class Circuit:
         # we use deepcopy() because it has nested dictionaries
         return copy.deepcopy(self.simulated_output_parameters)
     # END of get_simulated_output_parameter()
-
+    # ------------------------------------------------------------------------------
+    # Function to minimise current loss when loss = loss_Idd
+    def check_best_N(self):
+        # first setting up the current circuit parameters and simulated ouput parameters
+        initial_circuit_parameters = self.get_post_iteration_circuit_parameters()
+        initial_simulated_output_parameters = self.get_simulated_output_parameters()
+        Idd = initial_simulated_output_parameters['Idd'].copy()
+        Idd_total = 0
+        for flo in Idd:
+            Idd_total = Idd_total + Idd[flo]
+        current_N = int(inital_circuit_parameters['N'])
+        best_N = current_N
+        N_array = []
+        for i in [current_N-4, current_N-2, current_N, current_N+2, current_N+4]:
+            if i > 0:
+                N_array.append(i)
+        initial_circuit_parameters_dict = {}
+        simulated_output_parameters_dict = {}
+        remove_keys = []
+        for key in inital_circuit_parameters:
+            if key == 'res_w' or key == 'cap_w' or key == 'switch_w' or key == 'sw_wn' or key == 'sw_mul' or key == 'G' or key == 'RN' or key == 'gm':
+                continue
+            else:
+                remove_keys.append(key)
+        for key in remove_keys:
+            del inital_circuit_parameters[key]
+        load_cap = 2*inital_circuit_parameters['switch_w']
+        i = 0
+        for N_value in N_array:
+            initial_circuit_parameters_dict[i] = inital_circuit_parameters.copy()
+            N, wp_total, wn_total, wp, wn, mp, mn = cf.buffer_block_fixed_N(N_value, load_cap)
+            initial_circuit_parameters_dict[i]['N'] = N
+            j=0
+            while j < N:
+                str1 = "wp" + str(j) + "_total"
+                str2 = "wn" + str(j) + "_total"
+                str3 = "wp" + str(j) 
+                str4 = "wn" + str(j)
+                str5 = "mp" + str(j)
+                str6 = "mn" + str(j)
+                initial_circuit_parameters_dict[i][str1] = wp_total[j]
+                initial_circuit_parameters_dict[i][str2] = wn_total[j]
+                initial_circuit_parameters_dict[i][str3] = wp[j]
+                initial_circuit_parameters_dict[i][str4] = wn[j]
+                initial_circuit_parameters_dict[i][str5] = mp[j]
+                initial_circuit_parameters_dict[i][str6] = mn[j]
+                j = j + 1
+            i+=1
+        output_conditions = {
+            'min_LO_freq':100e6, 
+            'max_LO_freq':1e9, 
+            'RF_Bandwidth':10e6, 
+            'RN':250,
+            'G':100,
+            'gm':40e-3,
+            'gain_db':60, 
+            'S11_db':5, 
+            'NF_db':8,
+            'iip3':10
+        }
+        simulated_output_parameters_dict = self.run_circuit_multiple(output_conditions, initial_circuit_parameters_dict)
+        for j in simulated_output_parameters_dict:
+            Idd_total_temp = 0
+            Idd_temp = simulated_output_parameters_dict[i]['Idd'].copy()
+            for flo in Idd_temp:
+                Idd_total_temp = Idd_total_temp + Idd_temp[flo]
+            if Idd_total_temp < Idd_total:
+                Idd_total = Idd_total_temp
+                best_N = initial_circuit_parameters_dict[j]['N']
+        for j in initial_circuit_parameters_dict:
+            if initial_circuit_parameters_dict[j]['N'] ==  best_N:
+                return initial_circuit_parameters_dict[j].copy()
+    # END of check_for_best_N()        
 # --------------------------- END of class Circuit --------------------------------
 
 # ----------------------- Computing Loss function slope ---------------------------
