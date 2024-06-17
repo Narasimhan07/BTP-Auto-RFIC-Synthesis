@@ -46,23 +46,23 @@ freq_s11_tt, s11_tt = read_CSV(file_path_4)
 freq_s11_ff, s11_ff = read_CSV(file_path_5)
 freq_s11_ss, s11_ss = read_CSV(file_path_6)
 fig, ax = plt.subplots()
-ax.semilogx(freq_gain_tt, gain_tt, linewidth=1.0, linestyle='solid', color='blue', label="tt_lib")
-ax.semilogx(freq_gain_ss, gain_ss, linewidth=1.0, linestyle='solid', color='green', label="ss_lib")
-ax.semilogx(freq_gain_ff, gain_ff, linewidth=1.0, linestyle='solid', color='red', label="ff_lib")
+ax.semilogx(freq_gain_tt, gain_tt, linewidth=1.0, linestyle='solid', color='blue', label="Process: tt")
+ax.semilogx(freq_gain_ss, gain_ss, linewidth=1.0, linestyle='solid', color='green', label="Process: ss")
+ax.semilogx(freq_gain_ff, gain_ff, linewidth=1.0, linestyle='solid', color='red', label="Process: ff")
 ax.grid()
 ax.legend(loc=0)
-ax.set(xlim=(1e3, 10e6), ylim=(6, 8), yticks=np.linspace(5.5, 8.5, 7),
+ax.set(xlim=(1e3, 10e6), ylim=(1, 5.5), yticks=np.linspace(1, 5.5, 10),
     xticks=np.array([1e3, 1e4, 1e5, 1e6, 1e7]), xlabel="Frequency (Hz)", ylabel="Gain (in dB)", 
     title="Voltage Mode Passive Mixer: Variation of Gain vs Process Corners"
     )
 plt.show()
 fig, ax = plt.subplots()
-ax.plot(freq_s11_tt, s11_tt, linewidth=1.0, linestyle='solid', color='blue', label="tt_lib")
-ax.plot(freq_s11_ss, s11_ss, linewidth=1.0, linestyle='solid', color='green', label="ss_lib")
-ax.plot(freq_s11_ff, s11_ff, linewidth=1.0, linestyle='solid', color='red', label="ff_lib")
+ax.plot(freq_s11_tt, s11_tt, linewidth=1.0, linestyle='solid', color='blue', label="Process: tt")
+ax.plot(freq_s11_ss, s11_ss, linewidth=1.0, linestyle='solid', color='green', label="Process: ss")
+ax.plot(freq_s11_ff, s11_ff, linewidth=1.0, linestyle='solid', color='red', label="Process: ff")
 ax.grid()
 ax.legend(loc=0)
-ax.set(xlim=(540e6, 560e6), ylim=(-20,-5), yticks=np.linspace(-20, -5, 7), 
+ax.set(xlim=(540e6, 560e6), ylim=(-45,0), yticks=np.linspace(-45, 0, 10), 
     xticks=np.linspace(540e6, 560e6, 9), xlabel="Frequency (Hz)", ylabel="$S_{11}$ (in dB)", 
     title="Voltage Mode Passive Mixer: Variation of $S_{11}$ vs Process Corners"
     )

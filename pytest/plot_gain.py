@@ -48,8 +48,8 @@ ax.semilogx(freq_40, gain_40, linewidth=1.0, linestyle='solid', color='orange', 
 ax.semilogx(freq_80, gain_80, linewidth=1.0, linestyle='solid', color='green', label="$80^{\circ}$ C")
 ax.semilogx(freq_120, gain_120, linewidth=1.0, linestyle='solid', color='purple', label="$120^{\circ}$ C")
 ax.grid()
-ax.legend(loc=1)
-ax.set(xlim=(1e3, 10e6), ylim=(6.5, 8), yticks=np.linspace(6.25, 8.5, 10), 
+ax.legend(loc=0)
+ax.set(xlim=(1e3, 10e6), ylim=(1, 5), yticks=np.linspace(1, 5, 9), 
     xticks=np.array([1e3, 1e4, 1e5, 1e6, 1e7]), xlabel="Frequency (Hz)", ylabel="Gain (in dB)", 
     title="Voltage Mode Passive Mixer: Variation of Gain vs Temperature"
     )

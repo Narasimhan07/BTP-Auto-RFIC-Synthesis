@@ -48,8 +48,8 @@ ax.plot(freq_40, s11_40, linewidth=1.0, linestyle='solid', color='orange', label
 ax.plot(freq_80, s11_80, linewidth=1.0, linestyle='solid', color='green', label="$80^{\circ}$ C")
 ax.plot(freq_120, s11_120, linewidth=1.0, linestyle='solid', color='purple', label="$120^{\circ}$ C")
 ax.grid()
-ax.legend(loc=0)
-ax.set(xlim=(540e6, 560e6), ylim=(-16,-7), yticks=np.linspace(-16, -7, 10), 
+ax.legend(loc=4)
+ax.set(xlim=(540e6, 560e6), ylim=(-22.5,-2.5), yticks=np.linspace(-22.5, -2.5, 11), 
     xticks=np.linspace(540e6, 560e6, 9), xlabel="Frequency (Hz)", ylabel="$S_{11}$ (in dB)", 
     title="Voltage Mode Passive Mixer: Variation of $S_{11}$ vs Temperature"
     )
